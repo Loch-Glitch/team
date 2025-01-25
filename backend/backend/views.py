@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # MongoDB connection
-MONGO_URI = "mongodb+srv://jayasima:btjiUwbvKnYkGJZQ@genai.4gyxk.mongodb.net/"
+MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
     db = client['Project']  # Database name
