@@ -14,21 +14,17 @@ MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
     db = client['Project']  # Database name
-    collections = db['Roles']  # Roles collection
     collectionsignup = db['test']  # Signup data collection
     otp_collection = db['otp_storage']  # New collection for OTP storage
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
-# Email Configuration
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"  # Replace with your email
-EMAIL_HOST_PASSWORD = "zeuz ybit tjgt prus"  # Replace with your app password
+EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"  
+EMAIL_HOST_PASSWORD = "zeuz ybit tjgt prus"  
 EMAIL_USE_TLS = True
 
-# Global variable for role
-global_role = None
 
 def generate_otp():
     """Generate a 6-digit OTP"""
@@ -141,40 +137,12 @@ def verify_email_otp(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-@csrf_exempt
-def save_role(request):
-    # Existing save_role function remains the same
-    global global_role
-
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            role = data.get('role')
-
-            if not role:
-                return JsonResponse({"error": "Role is required."}, status=400)
-
-            if role not in ['user', 'admin']:
-                return JsonResponse({"error": "Invalid role. Only 'user' or 'admin' are allowed."}, status=400)
-
-            global_role = role
-            collections.insert_one({"role": role})
-
-            return JsonResponse({"message": f"Role '{role}' saved successfully!"}, status=200)
-        except Exception as e:
-            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
 @csrf_exempt
 def signup(request):
-    # Existing signup function remains the same
-    global global_role
-
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            role = global_role if global_role else 'user'
 
             required_fields = ["firstName", "email", "password", "confirmPassword"]
             for field in required_fields:
@@ -190,7 +158,6 @@ def signup(request):
                 "email": data.get("email"),
                 "phone": data.get("phone"),
                 "password": data.get("password"),
-                "role": role,
             }
 
             collectionsignup.insert_one(user_data)
@@ -226,7 +193,6 @@ def login(request):
                 "user": {
                     "id": str(user.get("_id")),
                     "email": user.get("email"),
-                    "role": user.get("role", "user"),
                     "first_name": user.get("first_name"),
                     "last_name": user.get("last_name"),
                 },

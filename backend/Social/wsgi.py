@@ -1,5 +1,5 @@
 """
-WSGI config for Language_AI_Trainer project.
+WSGI config for Social project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
