@@ -8,6 +8,11 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from django.contrib.auth import logout
 
 # MongoDB connection
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
@@ -312,3 +317,11 @@ def reset_password(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    logout(request)
+    return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+
