@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';  // Import BrowserRouter, Routes, and Route
-import SignUpPage from './page/Signup';  // Import Signup component
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { FaSun, FaMoon } from 'react-icons/fa'; // Import icons
+import SignUpPage from './page/Signup';
 import LoginPage from './page/Login';
-import HomePage from './page/Homepage';
 import ForgotPassword from './page/ForgotPassword';
 import ResetPassword from './page/ResetPassword';
-import PrivacyDoc from './page/PrivacyDoc';
+import HomePage from './page/Homepage';
+
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(true); // State for toggling light and dark mode
+
+  const toggleMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
 
   return (
-    <BrowserRouter>  {/* Wrap your app with BrowserRouter */}
-      <Routes>  {/* Define the routes */}
-        {/* <Route path="/" element={<App />} />  Set the main route to render App */}
-        <Route path="/login" element={<LoginPage />} />  {/* Define the route for login */}
-        <Route path="/" element={<SignUpPage />} />  {/* Define the route for Signup */}
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/privacydoc" element={<PrivacyDoc />} />
-
+    <Router>
+      <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+        <button onClick={toggleMode} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          {isDarkMode ? <FaSun color="#FFD700" size={24} /> : <FaMoon color="#4B0082" size={24} />}
+        </button>
+      </div>
+      <Routes>
+        <Route path="/" element={<SignUpPage isDarkMode={isDarkMode} />} />
+        <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} toggleMode={toggleMode}/>} />
+        <Route path="/forgot-password" element={<ForgotPassword isDarkMode={isDarkMode} />} />
+        <Route path="/reset-password" element={<ResetPassword isDarkMode={isDarkMode} />} />
+        <Route path="/home" element={<HomePage isDarkMode={isDarkMode}/>} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
-
 
 export default App;

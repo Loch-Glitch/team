@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function ForgotPassword() {
+function ForgotPassword({ isDarkMode }) {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // Function to send OTP request
   const handleSendOtp = async () => {
     if (!email) {
       alert('Please enter your email.');
@@ -17,9 +16,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/request-password-reset-otp/', {
-        email: email
-      });
+      const response = await axios.post('http://127.0.0.1:8000/api/request-password-reset-otp/', { email });
 
       if (response.status === 200) {
         setIsOtpSent(true);
@@ -30,8 +27,8 @@ function ForgotPassword() {
     } catch (error) {
       setErrorMessage('An error occurred. Please try again.');
     }
-};
-  // Function to verify OTP
+  };
+
   const handleVerifyOtp = async () => {
     if (!otp) {
       alert('Please enter the OTP.');
@@ -39,10 +36,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/verify-password-reset-otp/', {
-        email,
-        otp
-      });
+      const response = await axios.post('http://127.0.0.1:8000/api/verify-password-reset-otp/', { email, otp });
 
       if (response.status === 200) {
         navigate('/reset-password', { state: { email } });
@@ -52,11 +46,10 @@ function ForgotPassword() {
     } catch (error) {
       setErrorMessage('An error occurred. Please try again.');
     }
-};
-  // Function to navigate back to home
+  };
+
   const handleBack = () => navigate('/');
 
-  // Styles
   const styles = {
     container: {
       display: 'flex',
@@ -64,14 +57,14 @@ function ForgotPassword() {
       alignItems: 'center',
       justifyContent: 'center',
       height: '100vh',
-      backgroundColor: '#121212',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#282c34' : '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       fontFamily: 'Arial, sans-serif',
       padding: '20px',
     },
     header: {
       fontSize: '2.5rem',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#333',
       marginBottom: '20px',
     },
     formContainer: {
@@ -84,16 +77,16 @@ function ForgotPassword() {
     input: {
       padding: '12px',
       margin: '10px 0',
-      border: '1px solid #444',
+      border: `1px solid ${isDarkMode ? '#61dafb' : '#ccc'}`,
       borderRadius: '5px',
       fontSize: '1rem',
-      backgroundColor: '#1c1c1c',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#3a3f47' : '#ffffff',
+      color: isDarkMode ? '#ffffff' : '#000000',
       transition: 'border-color 0.3s ease',
     },
     signupButton: {
-      backgroundColor: '#ff6f61',
-      color: '#fff',
+      backgroundColor: isDarkMode ? '#61dafb' : '#4CAF50',
+      color: isDarkMode ? '#282c34' : '#ffffff',
       border: 'none',
       borderRadius: '5px',
       padding: '15px 0',
@@ -105,7 +98,7 @@ function ForgotPassword() {
     },
     footerButton: {
       backgroundColor: 'transparent',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#4CAF50',
       border: 'none',
       cursor: 'pointer',
       fontSize: '1rem',
@@ -115,11 +108,11 @@ function ForgotPassword() {
     otpInput: {
       padding: '12px',
       margin: '10px 0',
-      border: '1px solid #444',
+      border: `1px solid ${isDarkMode ? '#61dafb' : '#ccc'}`,
       borderRadius: '5px',
       fontSize: '1rem',
-      backgroundColor: '#1c1c1c',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#3a3f47' : '#ffffff',
+      color: isDarkMode ? '#ffffff' : '#000000',
       transition: 'border-color 0.3s ease',
     },
     errorMessage: {
