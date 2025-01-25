@@ -19,6 +19,7 @@ function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        WithCredentials: true,
         body: JSON.stringify({ email, password }),
       });
 

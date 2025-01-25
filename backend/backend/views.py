@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from django.contrib.auth.hashers import make_password
 
-# MongoDB connection
+
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
@@ -152,12 +153,14 @@ def signup(request):
             if data.get("password") != data.get("confirmPassword"):
                 return JsonResponse({"error": "Passwords do not match."}, status=400)
 
+            hashed_password = make_password(data.get("password"))
+
             user_data = {
                 "first_name": data.get("firstName"),
                 "last_name": data.get("lastName"),
                 "email": data.get("email"),
                 "phone": data.get("phone"),
-                "password": data.get("password"),
+                "password": hashed_password,
             }
 
             collectionsignup.insert_one(user_data)
