@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaSun, FaMoon } from 'react-icons/fa'; // Import icons
 
-function LoginPage() {
+function LoginPage({ isDarkMode, toggleMode }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -48,14 +49,14 @@ function LoginPage() {
       alignItems: 'center',
       justifyContent: 'center',
       height: '100vh',
-      backgroundColor: '#121212',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#282c34' : '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       fontFamily: 'Arial, sans-serif',
       padding: '20px',
     },
     header: {
       fontSize: '2.5rem',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#333',
       marginBottom: '20px',
     },
     formContainer: {
@@ -68,19 +69,16 @@ function LoginPage() {
     input: {
       padding: '12px',
       margin: '10px 0',
-      border: '1px solid #444',
+      border: `1px solid ${isDarkMode ? '#61dafb' : '#ccc'}`,
       borderRadius: '5px',
       fontSize: '1rem',
-      backgroundColor: '#1c1c1c',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#3a3f47' : '#ffffff',
+      color: isDarkMode ? '#ffffff' : '#000000',
       transition: 'border-color 0.3s ease',
     },
-    inputFocus: {
-      borderColor: '#ff6f61',
-    },
     loginButton: {
-      backgroundColor: '#ff6f61',
-      color: '#fff',
+      backgroundColor: isDarkMode ? '#61dafb' : '#4CAF50',
+      color: isDarkMode ? '#282c34' : '#ffffff',
       border: 'none',
       borderRadius: '5px',
       padding: '15px 0',
@@ -88,12 +86,7 @@ function LoginPage() {
       width: '100%',
       cursor: 'pointer',
       transition: 'background-color 0.3s ease, transform 0.2s ease',
-    },
-    loginButtonHover: {
-      backgroundColor: '#ff4b47',
-    },
-    loginButtonActive: {
-      transform: 'scale(0.95)',
+      marginTop: '10px',
     },
     footer: {
       display: 'flex',
@@ -104,7 +97,7 @@ function LoginPage() {
     },
     footerButton: {
       backgroundColor: 'transparent',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#4CAF50',
       border: 'none',
       cursor: 'pointer',
       fontSize: '1rem',
@@ -119,10 +112,15 @@ function LoginPage() {
 
   return (
     <div style={styles.container}>
+      <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+        <button onClick={toggleMode} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          {isDarkMode ? <FaSun color="#FFD700" size={24} /> : <FaMoon color="#4B0082" size={24} />}
+        </button>
+      </div>
       <h1 style={styles.header}>Login</h1>
       {error && <p style={styles.error}>{error}</p>}
       <div style={styles.formContainer}>
-      <input
+        <input
           type="email"
           placeholder="Email Address"
           value={email}
@@ -140,16 +138,6 @@ function LoginPage() {
       <button
         onClick={handleLogin}
         style={styles.loginButton}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor = styles.loginButtonHover.backgroundColor)
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.backgroundColor = '#ff6f61')
-        }
-        onMouseDown={(e) =>
-          (e.currentTarget.style.transform = styles.loginButtonActive.transform)
-        }
-        onMouseUp={(e) => (e.currentTarget.style.transform = 'none')}
       >
         Login
       </button>

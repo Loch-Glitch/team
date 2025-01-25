@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function ResetPassword() {
+function ResetPassword({ isDarkMode }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -49,29 +49,29 @@ function ResetPassword() {
       alignItems: 'center',
       justifyContent: 'center',
       height: '100vh',
-      backgroundColor: '#121212',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#282c34' : '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       fontFamily: 'Arial, sans-serif',
       padding: '20px',
     },
     header: {
       fontSize: '2.5rem',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#333',
       marginBottom: '20px',
     },
     input: {
       padding: '12px',
       margin: '10px 0',
-      border: '1px solid #444',
+      border: `1px solid ${isDarkMode ? '#61dafb' : '#ccc'}`,
       borderRadius: '5px',
       fontSize: '1rem',
-      backgroundColor: '#1c1c1c',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#3a3f47' : '#ffffff',
+      color: isDarkMode ? '#ffffff' : '#000000',
       transition: 'border-color 0.3s ease',
     },
     button: {
-      backgroundColor: '#ff6f61',
-      color: 'white',
+      backgroundColor: isDarkMode ? '#61dafb' : '#4CAF50',
+      color: isDarkMode ? '#282c34' : '#ffffff',
       border: 'none',
       borderRadius: '5px',
       padding: '10px 0',
@@ -83,7 +83,7 @@ function ResetPassword() {
     },
     backButton: {
       backgroundColor: 'transparent',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#4CAF50',
       border: 'none',
       cursor: 'pointer',
       fontSize: '1rem',
@@ -92,14 +92,14 @@ function ResetPassword() {
     },
     emailText: {
       fontSize: '1rem',
-      color: '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       marginBottom: '20px',
     },
     checkboxContainer: {
       display: 'flex',
       alignItems: 'center',
       marginTop: '10px',
-      color: '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       fontSize: '1rem',
     },
     checkbox: {
