@@ -53,7 +53,7 @@ MIDDLEWARE = [
     
 ]
 
-ROOT_URLCONF = 'Language_AI_Trainer.urls'
+ROOT_URLCONF = 'Social.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Language_AI_Trainer.wsgi.application'
+WSGI_APPLICATION = 'Social.wsgi.application'
 
 
 # Database
