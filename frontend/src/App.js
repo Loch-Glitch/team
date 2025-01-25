@@ -6,6 +6,8 @@ import LoginPage from './page/Login';
 import ForgotPassword from './page/ForgotPassword';
 import ResetPassword from './page/ResetPassword';
 import HomePage from './page/Homepage';
+import ProtectedRoute from './page/ProtectedRoute'; // Import the component
+import ProfilePage from './page/ProfilePage';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true); // State for toggling light and dark mode
@@ -23,10 +25,19 @@ function App() {
       </div>
       <Routes>
         <Route path="/" element={<SignUpPage isDarkMode={isDarkMode} />} />
-        <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} toggleMode={toggleMode}/>} />
+        <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} toggleMode={toggleMode} />} />
         <Route path="/forgot-password" element={<ForgotPassword isDarkMode={isDarkMode} />} />
         <Route path="/reset-password" element={<ResetPassword isDarkMode={isDarkMode} />} />
-        <Route path="/home" element={<HomePage isDarkMode={isDarkMode}/>} />
+        {/* <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage isDarkMode={isDarkMode} />
+            </ProtectedRoute>
+          }
+        /> */}
+        <Route path="/home" element={<HomePage isDarkMode={isDarkMode} />} />
+        <Route path="/profile" element={<ProfilePage isDarkMode={isDarkMode} />} />
       </Routes>
     </Router>
   );
