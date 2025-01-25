@@ -14,9 +14,9 @@ from django.contrib.auth.hashers import make_password
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
-    db = client['Project']  # Database name
-    collectionsignup = db['test']  # Signup data collection
-    otp_collection = db['otp_storage']  # New collection for OTP storage
+    db = client['Project']
+    collectionsignup = db['test'] 
+    otp_collection = db['otp_storage']  
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
@@ -173,7 +173,6 @@ def signup(request):
 
 @csrf_exempt
 def login(request):
-    # Existing login function remains the same
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -188,8 +187,28 @@ def login(request):
             if not user:
                 return JsonResponse({"error": "User not found or email is incorrect."}, status=404)
 
+            # Check if account is locked
+            if user.get("is_locked"):
+                lock_time = user.get("lock_time")
+                if lock_time and datetime.utcnow() > lock_time + timedelta(minutes=5):
+                    # Unlock the account after 5 minutes
+                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": False, "failed_attempts": 0}})
+                else:
+                    return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
+
             if user.get("password") != password:
-                return JsonResponse({"error": "Invalid password."}, status=401)
+                # Increment failed login attempts
+                failed_attempts = user.get("failed_attempts", 0) + 1
+                if failed_attempts >= 5:
+                    # Lock the account
+                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": True, "lock_time": datetime.utcnow()}})
+                    return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
+                else:
+                    collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": failed_attempts}})
+                    return JsonResponse({"error": "Invalid password."}, status=401)
+
+            # Reset failed login attempts on successful login
+            collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": 0}})
 
             response_data = {
                 "message": "Login successful!",
