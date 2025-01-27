@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
-function SignUpPage() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+function SignUpPage({ isDarkMode }) {
+  // Existing state variables
+  const [name, setname] = useState('');
+  const [username, setusername] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -16,8 +17,6 @@ function SignUpPage() {
   const [isPhoneVerification, setIsPhoneVerification] = useState(false);
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
-
-  // New state variables for timers and expiration
   const [emailTimer, setEmailTimer] = useState(300); // 5 minutes in seconds
   const [phoneTimer, setPhoneTimer] = useState(300);
   const [emailOtpExpired, setEmailOtpExpired] = useState(false);
@@ -116,24 +115,6 @@ function SignUpPage() {
     }
   };
 
-  // // Modified phone verification handler
-  // const handlePhoneVerification = async () => {
-  //   if (!phone || phone.length !== 10) {
-  //     setError('Please enter a valid 10-digit phone number.');
-  //     return;
-  //   }
-  //   try {
-  //     setError('');
-  //     setIsPhoneVerification(true);
-  //     setPhoneTimer(300);
-  //     setPhoneOtpExpired(false);
-  //     setPhoneOtpAttempts(0); // Reset attempts on new OTP request
-  //     await axios.post('http://127.0.0.1:8000/api/request-phone-otp/', { phone });
-  //   } catch (error) {
-  //     setError('Failed to request phone verification. Please try again.');
-  //   }
-  // };
-
   // Handle OTP submission with retry logic
   const handleEmailOtpSubmission = async () => {
     if (emailOtpExpired) {
@@ -175,10 +156,8 @@ function SignUpPage() {
     }
   };
 
-  // Rest of the handlers remain the same
-
   const handleSignUp = async () => {
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !privacyChecked) {
+    if (!name || !username || !email || !password || !confirmPassword || !privacyChecked) {
       setError('Please fill all the required fields and agree to the privacy terms.');
       return;
     }
@@ -190,15 +169,11 @@ function SignUpPage() {
       setError('Password must be at least 3 characters long, contain letters, numbers, and at least one symbol.');
       return;
     }
-    // if (phone.length !== 10) {
-    //   setError('Please enter a valid 10-digit phone number.');
-    //   return;
-    // }
     setError('');
 
     const userData = {
-      firstName,
-      lastName,
+      name,
+      username,
       email,
       phone,
       password,
@@ -213,7 +188,7 @@ function SignUpPage() {
       }
     } catch (error) {
       console.error('Error during sign-up:', error);
-      setError('An error occurred during sign-up. Please try again.');
+      setError(error.response.data.error)
     }
   };
 
@@ -228,14 +203,14 @@ function SignUpPage() {
       alignItems: 'center',
       justifyContent: 'center',
       height: '100vh',
-      backgroundColor: '#121212',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#282c34' : '#f0f0f0',
+      color: isDarkMode ? '#ffffff' : '#000000',
       fontFamily: 'Arial, sans-serif',
       padding: '20px',
     },
     header: {
       fontSize: '2.5rem',
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#333',
       marginBottom: '20px',
     },
     formContainer: {
@@ -248,11 +223,11 @@ function SignUpPage() {
     input: {
       padding: '12px',
       margin: '10px 0',
-      border: '1px solid #444',
+      border: `1px solid ${isDarkMode ? '#61dafb' : '#ccc'}`,
       borderRadius: '5px',
       fontSize: '1rem',
-      backgroundColor: '#1c1c1c',
-      color: '#f0f0f0',
+      backgroundColor: isDarkMode ? '#3a3f47' : '#ffffff',
+      color: isDarkMode ? '#ffffff' : '#000000',
       transition: 'border-color 0.3s ease',
     },
     errorText: {
@@ -262,8 +237,8 @@ function SignUpPage() {
       marginBottom: '10px',
     },
     signupButton: {
-      backgroundColor: '#ff6f61',
-      color: '#fff',
+      backgroundColor: isDarkMode ? '#61dafb' : '#4CAF50',
+      color: isDarkMode ? '#282c34' : '#ffffff',
       border: 'none',
       borderRadius: '5px',
       padding: '15px 0',
@@ -281,9 +256,19 @@ function SignUpPage() {
       maxWidth: '400px',
     },
     link: {
-      color: '#ff6f61',
+      color: isDarkMode ? '#61dafb' : '#4CAF50',
       textDecoration: 'underline',
       cursor: 'pointer',
+    },
+    toggleButton: {
+      backgroundColor: isDarkMode ? '#61dafb' : '#4CAF50',
+      color: isDarkMode ? '#282c34' : '#ffffff',
+      border: 'none',
+      borderRadius: '5px',
+      padding: '10px 20px',
+      fontSize: '1rem',
+      cursor: 'pointer',
+      marginTop: '20px',
     },
   };
 
@@ -296,17 +281,17 @@ function SignUpPage() {
       <div style={styles.formContainer}>
         <input
           type="text"
-          placeholder="First Name (Required)"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          placeholder=" Name (Required)"
+          value={name}
+          onChange={(e) => setname(e.target.value)}
           style={styles.input}
         />
 
         <input
           type="text"
-          placeholder="Last Name (Required)"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          placeholder=" Username (Required)"
+          value={username}
+          onChange={(e) => setusername(e.target.value)}
           style={styles.input}
         />
 
@@ -339,7 +324,6 @@ function SignUpPage() {
             Submit OTP
           </button>
         )}
-
 
         <input
           type={showPassword ? "text" : "password"}
@@ -388,63 +372,4 @@ function SignUpPage() {
   );
 }
 
-
-  // Define the styles object
-  const styles = {
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: '20px',
-    },
-    header: {
-      fontSize: '2rem',
-      marginBottom: '20px',
-    },
-    error: {
-      color: 'red',
-      marginBottom: '10px',
-    },
-    formContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      maxWidth: '400px',
-    },
-    input: {
-      padding: '10px',
-      marginBottom: '10px',
-      borderRadius: '5px',
-      border: '1px solid #ccc',
-    },
-    verifyButton: {
-      padding: '10px',
-      marginBottom: '10px',
-      backgroundColor: '#4CAF50',
-      color: 'white',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-    },
-    signupButton: {
-      padding: '10px',
-      backgroundColor: '#4CAF50',
-      color: 'white',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      width: '100%',
-    },
-    backButton: {
-      padding: '10px',
-      backgroundColor: '#f44336',
-      color: 'white',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      width: '100%',
-      marginTop: '10px',
-    },
-  };
-  
 export default SignUpPage;

@@ -9,7 +9,11 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from django.contrib.auth.hashers import make_password
-
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from django.contrib.auth import logout
 
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
@@ -17,6 +21,7 @@ try:
     db = client['Project']
     collectionsignup = db['test'] 
     otp_collection = db['otp_storage']  
+    post_collection = db['post']
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
@@ -145,7 +150,7 @@ def signup(request):
         try:
             data = json.loads(request.body)
 
-            required_fields = ["firstName", "email", "password", "confirmPassword"]
+            required_fields = ["name", "email", "password", "confirmPassword", "username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
@@ -153,15 +158,24 @@ def signup(request):
             if data.get("password") != data.get("confirmPassword"):
                 return JsonResponse({"error": "Passwords do not match."}, status=400)
 
+            # email = data.get("email")
+            username = data.get("username")
+
+            # if collectionsignup.find_one({"email": email}):
+            #     return JsonResponse({"error": "Email has already been used."}, status=400)
+
+            if collectionsignup.find_one({"username": username}):
+                return JsonResponse({"error": "Username has already been used."}, status=400)
+
             hashed_password = make_password(data.get("password"))
 
             user_data = {
-                "first_name": data.get("firstName"),
-                "last_name": data.get("lastName"),
+                "name": data.get("name"),
                 "email": data.get("email"),
-                "phone": data.get("phone"),
+                "username": data.get("username"),
                 "password": hashed_password,
             }
+            # print(user_data)
 
             collectionsignup.insert_one(user_data)
 
@@ -215,8 +229,8 @@ def login(request):
                 "user": {
                     "id": str(user.get("_id")),
                     "email": user.get("email"),
-                    "first_name": user.get("first_name"),
-                    "last_name": user.get("last_name"),
+                    "name": user.get("name"),
+                    "username": user.get("username"),
                 },
             }
 
@@ -226,7 +240,6 @@ def login(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
-
 
 @csrf_exempt
 def request_password_reset_otp(request):
@@ -334,3 +347,13 @@ def reset_password(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# @csrf_exempt
+# def home(request):
+#     if request.method =='POST':
+#        try:
+
+
+
+
+
