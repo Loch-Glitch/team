@@ -14,7 +14,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import logout
+from bson import Binary
+import base64
+from PIL import Image, UnidentifiedImageError
+from io import BytesIO
 from bson.objectid import ObjectId
+import logging
+import os
 
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
@@ -342,28 +348,23 @@ def reset_password(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-@api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-def logout_view(request):
-    logout(request)
-    return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-
+logging.basicConfig(level=logging.ERROR, filename='error.log')
+os.makedirs('images', exist_ok=True)
 
 @csrf_exempt
 def create_post(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-
+            
             required_fields = ["text"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
-
+                
             post_data = {
                 "text": data.get("text"),
-                # "image": data.get("image"),
-                # "video": data.get("video"),
+                "image": data.get("image"),
             }
 
             post_collection.insert_one(post_data)
@@ -372,7 +373,7 @@ def create_post(request):
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
-        return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 @csrf_exempt
 def get_posts(request):
@@ -408,4 +409,9 @@ def delete_post(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
+
+
+
+
 
