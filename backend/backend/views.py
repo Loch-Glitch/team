@@ -14,6 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import logout
+from bson.objectid import ObjectId
 
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
@@ -21,6 +22,8 @@ try:
     db = client['Project']  # Database name
     collectionsignup = db['test']  # Signup data collection
     otp_collection = db['otp_storage']  # New collection for OTP storage
+    post_collection = db['post']  # New collection for posts
+
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
@@ -344,4 +347,65 @@ def reset_password(request):
 def logout_view(request):
     logout(request)
     return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+def create_post(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            required_fields = ["text"]
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({"error": f"{field} is required."}, status=400)
+
+            post_data = {
+                "text": data.get("text"),
+                # "image": data.get("image"),
+                # "video": data.get("video"),
+            }
+
+            post_collection.insert_one(post_data)
+
+            return JsonResponse({"message": "Post created successfully!"}, status=201)
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
+@csrf_exempt
+def get_posts(request):
+    if request.method == 'GET':
+
+        try:
+            posts = list(post_collection.find())
+            return JsonResponse({"posts": posts.get("text")}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method. Use GET."}, status=405)
+    
+
+@csrf_exempt
+def delete_post(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            post_id = data.get("id")
+
+            if not post_id:
+                return JsonResponse({"error": "Post ID is required."}, status=400)
+
+            result = post_collection.delete_one({"_id": ObjectId(post_id)})
+
+            if result.deleted_count == 0:
+                return JsonResponse({"error": "Post not found."}, status=404)
+
+            return JsonResponse({"message": "Post deleted successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
