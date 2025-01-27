@@ -25,11 +25,10 @@ import os
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
-    db = client['Project']  # Database name
-    collectionsignup = db['test']  # Signup data collection
-    otp_collection = db['otp_storage']  # New collection for OTP storage
-    post_collection = db['post']  # New collection for posts
-
+    db = client['Project']
+    collectionsignup = db['test'] 
+    otp_collection = db['otp_storage']  
+    post_collection = db['post']
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
@@ -158,7 +157,7 @@ def signup(request):
         try:
             data = json.loads(request.body)
 
-            required_fields = ["firstName", "email", "password", "confirmPassword"]
+            required_fields = ["name", "email", "password", "confirmPassword", "username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
@@ -166,15 +165,24 @@ def signup(request):
             if data.get("password") != data.get("confirmPassword"):
                 return JsonResponse({"error": "Passwords do not match."}, status=400)
 
+            # email = data.get("email")
+            username = data.get("username")
+
+            # if collectionsignup.find_one({"email": email}):
+            #     return JsonResponse({"error": "Email has already been used."}, status=400)
+
+            if collectionsignup.find_one({"username": username}):
+                return JsonResponse({"error": "Username has already been used."}, status=400)
+
             hashed_password = make_password(data.get("password"))
 
             user_data = {
-                "first_name": data.get("firstName"),
-                "last_name": data.get("lastName"),
+                "name": data.get("name"),
                 "email": data.get("email"),
-                "phone": data.get("phone"),
+                "username": data.get("username"),
                 "password": hashed_password,
             }
+            # print(user_data)
 
             collectionsignup.insert_one(user_data)
 
@@ -228,8 +236,8 @@ def login(request):
                 "user": {
                     "id": str(user.get("_id")),
                     "email": user.get("email"),
-                    "first_name": user.get("first_name"),
-                    "last_name": user.get("last_name"),
+                    "name": user.get("name"),
+                    "username": user.get("username"),
                 },
             }
 
@@ -347,10 +355,6 @@ def reset_password(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-
-logging.basicConfig(level=logging.ERROR, filename='error.log')
-os.makedirs('images', exist_ok=True)
-
 @csrf_exempt
 def create_post(request):
     if request.method == 'POST':
@@ -411,7 +415,36 @@ def delete_post(request):
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
 
+@csrf_exempt
+def profile(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
 
+            if not email:
+                return JsonResponse({"error": "Email is required."}, status=400)
 
+            user = collectionsignup.find_one({"email": email}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
 
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+
+            posts = list(post_collection.find({"email": email}, {"_id": 0}))
+
+            response_data = {
+                "user": user,
+                "posts": posts
+            }
+
+            return JsonResponse(response_data, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
+# @csrf_exempt
+# def follower(request):
+    
 

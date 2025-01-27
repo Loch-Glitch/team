@@ -4,27 +4,21 @@ import axios from 'axios';
 
 function SignUpPage({ isDarkMode }) {
   // Existing state variables
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setname] = useState('');
+  const [username, setusername] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [isEmailVerification, setIsEmailVerification] = useState(false);
-  const [isPhoneVerification, setIsPhoneVerification] = useState(false);
   const [emailOtp, setEmailOtp] = useState('');
-  const [phoneOtp, setPhoneOtp] = useState('');
   const [emailTimer, setEmailTimer] = useState(300); // 5 minutes in seconds
-  const [phoneTimer, setPhoneTimer] = useState(300);
   const [emailOtpExpired, setEmailOtpExpired] = useState(false);
-  const [phoneOtpExpired, setPhoneOtpExpired] = useState(false);
-  const [phoneError, setPhoneError] = useState('');
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [emailOtpAttempts, setEmailOtpAttempts] = useState(0); // Track email OTP attempts
-  const [phoneOtpAttempts, setPhoneOtpAttempts] = useState(0); // Track phone OTP attempts
+ 
 
   const navigate = useNavigate();
 
@@ -46,24 +40,7 @@ function SignUpPage({ isDarkMode }) {
     return () => clearInterval(interval);
   }, [isEmailVerification, emailTimer]);
 
-  // Timer effect for phone OTP
-  useEffect(() => {
-    let interval;
-    if (isPhoneVerification && phoneTimer > 0) {
-      interval = setInterval(() => {
-        setPhoneTimer((prev) => {
-          if (prev <= 1) {
-            setPhoneOtpExpired(true);
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPhoneVerification, phoneTimer]);
-
+  
   // Format timer display
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -77,25 +54,7 @@ function SignUpPage({ isDarkMode }) {
     return passwordRegex.test(password);
   };
 
-  // Modified phone validation
-  const validateAndSetPhone = (value) => {
-    const phoneRegex = /^\d*$/;
-    if (!phoneRegex.test(value)) {
-      setPhoneError('Please enter numbers only');
-      return;
-    }
-    if (value.length > 10) {
-      setPhoneError('Phone number cannot exceed 10 digits');
-      return;
-    }
-    setPhoneError('');
-    setPhone(value);
-    if (value.length === 10) {
-      setPhoneError('');
-    } else if (value.length > 0) {
-      setPhoneError('Phone number must be 10 digits');
-    }
-  };
+
 
   // Modified email verification handler
   const handleEmailVerification = async () => {
@@ -136,28 +95,10 @@ function SignUpPage({ isDarkMode }) {
     }
   };
 
-  const handlePhoneOtpSubmission = async () => {
-    if (phoneOtpExpired) {
-      setError('OTP has expired. Please request a new one.');
-      return;
-    }
-    if (phoneOtpAttempts >= 3) {
-      setError('Too many incorrect attempts. Please request a new OTP.');
-      return;
-    }
-    try {
-      setError('');
-      await axios.post('http://127.0.0.1:8000/api/verify-phone-otp/', { phone, otp: phoneOtp });
-      alert('Phone verified successfully!');
-      setIsPhoneVerification(false);
-    } catch (error) {
-      setError('Invalid OTP. Please try again.');
-      setPhoneOtpAttempts((prev) => prev + 1); // Increment OTP attempts
-    }
-  };
+  
 
   const handleSignUp = async () => {
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !privacyChecked) {
+    if (!name || !username || !email || !password || !confirmPassword || !privacyChecked) {
       setError('Please fill all the required fields and agree to the privacy terms.');
       return;
     }
@@ -172,10 +113,9 @@ function SignUpPage({ isDarkMode }) {
     setError('');
 
     const userData = {
-      firstName,
-      lastName,
+      name,
+      username,
       email,
-      phone,
       password,
       confirmPassword
     };
@@ -188,7 +128,7 @@ function SignUpPage({ isDarkMode }) {
       }
     } catch (error) {
       console.error('Error during sign-up:', error);
-      setError('An error occurred during sign-up. Please try again.');
+      setError(error.response.data.error)
     }
   };
 
@@ -281,17 +221,17 @@ function SignUpPage({ isDarkMode }) {
       <div style={styles.formContainer}>
         <input
           type="text"
-          placeholder="First Name (Required)"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          placeholder=" Name (Required)"
+          value={name}
+          onChange={(e) => setname(e.target.value)}
           style={styles.input}
         />
 
         <input
           type="text"
-          placeholder="Last Name (Required)"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          placeholder=" Username (Required)"
+          value={username}
+          onChange={(e) => setusername(e.target.value)}
           style={styles.input}
         />
 
@@ -366,7 +306,7 @@ function SignUpPage({ isDarkMode }) {
         </button>
       </div>
       <div>
-        <p>Already have an account? <Link to="/login" style={styles.link}>Login</Link></p>
+        <p>Already have an account? <Link to="/" style={styles.link}>Login</Link></p>
       </div>
     </div>
   );

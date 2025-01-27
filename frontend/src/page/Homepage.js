@@ -8,6 +8,8 @@ function HomePage({ isDarkMode }) {
 
   const [dropdown, setDropdown] = useState(false);
   const navigate = useNavigate()
+  const [text, settext] = useState("")
+  const [ errorMessage , setErrorMessage] = useState("")
 
   useEffect(() => {
     let timeoutId;
@@ -111,6 +113,19 @@ function HomePage({ isDarkMode }) {
     }
   };
 
+const userpost = {
+  text
+};
+
+  const handlecreatepost = async()=> {
+    try {
+    const response = await axios.post("http://127.0.0.1:8000/api/create-post/" , userpost)
+    }
+    catch (error) {
+      setErrorMessage("an error occured")
+   }
+  };
+
   return (
     <div style={styles.container}>
       <div className='profile' style={styles.profile}>
@@ -135,11 +150,20 @@ function HomePage({ isDarkMode }) {
                 <FaSignOutAlt style={styles.icon} /> Logout
               </li>
             </ul>
+
+          
+          
           </div>
         )}
       </div>
       <h1 style={styles.header}>Welcome to the Home Page</h1>
       <p style={styles.message}>You have successfully logged in!</p>
+      <input
+            type="text"
+            placeholder="text"
+            value={text}
+            onChange={(e) => settext(e.target.value)} />
+      <button onClick={handlecreatepost} > Create post </button>
     </div>
   );
 }
