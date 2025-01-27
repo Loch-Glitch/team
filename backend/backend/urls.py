@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import *
 from . import views
+
 urlpatterns = [
     path('api/signup/', signup, name='signup'),
     path('api/login/', login, name='login'),
@@ -14,6 +15,7 @@ urlpatterns = [
     path('api/get-posts/', views.get_posts, name='get_posts'),
     path('api/delete-post/', views.delete_post, name='delete_post'),
     path('api/reset-password/', views.reset_password, name='reset_password'),
+    path('api/profile/', views.profile, name="profile"),
     
 
 ]

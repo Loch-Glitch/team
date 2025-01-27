@@ -349,16 +349,6 @@ def reset_password(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-# @csrf_exempt
-# def home(request):
-#     if request.method =='POST':
-#        try:
-
-
-
-
-
-
 @csrf_exempt
 def create_post(request):
     if request.method == 'POST':
@@ -418,4 +408,37 @@ def delete_post(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
+@csrf_exempt
+def profile(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+
+            if not email:
+                return JsonResponse({"error": "Email is required."}, status=400)
+
+            user = collectionsignup.find_one({"email": email}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+
+            posts = list(post_collection.find({"email": email}, {"_id": 0}))
+
+            response_data = {
+                "user": user,
+                "posts": posts
+            }
+
+            return JsonResponse(response_data, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
+@csrf_exempt
+def follower(request):
+    
 
