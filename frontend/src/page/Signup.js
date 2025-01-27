@@ -4,8 +4,8 @@ import axios from 'axios';
 
 function SignUpPage({ isDarkMode }) {
   // Existing state variables
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setname] = useState('');
+  const [username, setusername] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -157,7 +157,7 @@ function SignUpPage({ isDarkMode }) {
   };
 
   const handleSignUp = async () => {
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !privacyChecked) {
+    if (!name || !username || !email || !password || !confirmPassword || !privacyChecked) {
       setError('Please fill all the required fields and agree to the privacy terms.');
       return;
     }
@@ -172,8 +172,8 @@ function SignUpPage({ isDarkMode }) {
     setError('');
 
     const userData = {
-      firstName,
-      lastName,
+      name,
+      username,
       email,
       phone,
       password,
@@ -188,7 +188,7 @@ function SignUpPage({ isDarkMode }) {
       }
     } catch (error) {
       console.error('Error during sign-up:', error);
-      setError('An error occurred during sign-up. Please try again.');
+      setError(error.response.data.error)
     }
   };
 
@@ -281,17 +281,17 @@ function SignUpPage({ isDarkMode }) {
       <div style={styles.formContainer}>
         <input
           type="text"
-          placeholder="First Name (Required)"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          placeholder=" Name (Required)"
+          value={name}
+          onChange={(e) => setname(e.target.value)}
           style={styles.input}
         />
 
         <input
           type="text"
-          placeholder="Last Name (Required)"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          placeholder=" Username (Required)"
+          value={username}
+          onChange={(e) => setusername(e.target.value)}
           style={styles.input}
         />
 
@@ -366,7 +366,7 @@ function SignUpPage({ isDarkMode }) {
         </button>
       </div>
       <div>
-        <p>Already have an account? <Link to="/login" style={styles.link}>Login</Link></p>
+        <p>Already have an account? <Link to="/" style={styles.link}>Login</Link></p>
       </div>
     </div>
   );

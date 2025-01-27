@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'backend'
+    'backend',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -131,9 +133,3 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-DEFAULT_FROM_EMAIL = 'kandaring2k24@gmail.com'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kandaring2k24@gmail.com'
-EMAIL_HOST_PASSWORD = 'rqdf vijj lywv cxyp'

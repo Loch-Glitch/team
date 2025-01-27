@@ -13,4 +13,7 @@ urlpatterns = [
     path('api/create-post/', views.create_post, name='create_post'),
     path('api/get-posts/', views.get_posts, name='get_posts'),
     path('api/delete-post/', views.delete_post, name='delete_post'),
+    path('api/reset-password/', views.reset_password, name='reset_password'),
+    
+
 ]
