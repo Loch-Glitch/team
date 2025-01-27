@@ -9,6 +9,7 @@ import ProtectedRoute from './page/ProtectedRoute';
 import ProfilePage from './page/ProfilePage';
 import PrivacyDoc from './page/PrivacyDoc';
 
+
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true); // State for toggling light and dark mode
 
