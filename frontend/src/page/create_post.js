@@ -5,6 +5,7 @@ const App = () => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState({ text: '', username: '', image: '' });
   const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState(null);
 
   // Fetch posts from the API
   const fetchPosts = async () => {
@@ -39,6 +40,7 @@ const App = () => {
       await axios.post('http://127.0.0.1:8000/api/create-post/', postData);
       alert('Post created successfully!');
       setNewPost({ text: '', username: JSON.parse(localStorage.getItem('userInfo')).username, image: '' });
+      setPreview(null);
       fetchPosts();
     } catch (error) {
       console.error('Error creating post:', error);
@@ -71,6 +73,15 @@ const App = () => {
     reader.readAsDataURL(file);
   };
 
+  // Show preview of the post
+  const showPreview = () => {
+    if (!newPost.text) {
+      alert('Text required for preview!');
+      return;
+    }
+    setPreview(newPost);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
       <h1 className="text-2xl font-bold mb-4">Post Management</h1>
@@ -91,11 +102,30 @@ const App = () => {
           className="w-full p-2 border rounded mb-2"
         />
         <button
-          onClick={createPost}
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          onClick={showPreview}
+          className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 mb-2"
         >
-          Create Post
+          Preview Post
         </button>
+        {preview && (
+          <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+            <p className="text-gray-700 font-medium">{preview.text}</p>
+            {preview.image && (
+              <img
+                src={preview.image}
+                alt="Post Preview"
+                style={{ width: '300px', height: 'auto' }} // Adjust size as needed
+                className="mt-2 rounded-lg w-full object-cover"
+              />
+            )}
+            <button
+              onClick={createPost}
+              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mt-2"
+            >
+              Create Post
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Posts List Section */}
