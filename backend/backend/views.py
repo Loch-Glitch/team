@@ -362,7 +362,7 @@ def create_post(request):
         try:
             data = json.loads(request.body)
             
-            required_fields = ["text"]
+            required_fields = ["text","username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
@@ -370,6 +370,8 @@ def create_post(request):
             post_data = {
                 "text": data.get("text"),
                 "image": data.get("image"),
+                "username": data.get("username"),
+                "created_at": datetime.utcnow()
             }
 
             post_collection.insert_one(post_data)
