@@ -430,7 +430,6 @@ def friend_request(request):
             username = data.get("username")
             friend_username = data.get("friend_username")
 
-
             if not username or not friend_username:
                 return JsonResponse({"error": "Username and friend's username are required."}, status=400)
             
@@ -442,11 +441,9 @@ def friend_request(request):
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
             
-            
             result = collectionsignup.update_one(
                 {"username": username},
-                {"$set": {"friend_request": friend_username}}
-
+                {"$addToSet": {"friend_requests": friend_username}}
             )
 
             if result.modified_count == 0:
@@ -516,7 +513,7 @@ def reject_friend_request(request):
             
             result = collectionsignup.update_one(
                 {"username": username},
-                {"$set": {"friend_request": ""}}
+                {"$addToSet": {"friend_request": ""}}
             )
 
             if result.modified_count == 0:
@@ -561,5 +558,5 @@ def search_user(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
+
 
