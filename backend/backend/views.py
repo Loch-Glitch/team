@@ -382,7 +382,13 @@ def get_posts(request):
 
         try:
             post = list(post_collection.find())
-            return JsonResponse({"posts": post.get("text")}, status=200)
+
+            # print(post)
+
+            if post.get('username'):
+                print(post.get('username'))
+
+            return JsonResponse({"posts": 'hello' }, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
