@@ -10,7 +10,7 @@ const App = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/get-posts/');
+      const response = await axios.get('http://127.0.0.1:8000/api/get-posts/');
       setPosts(response.data.posts || []);
     } catch (error) {
       console.error('Error fetching posts:', error);

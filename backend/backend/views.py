@@ -8,19 +8,9 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from django.contrib.auth.hashers import make_password
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from django.contrib.auth import logout
-from bson import Binary
-import base64
-from PIL import Image, UnidentifiedImageError
-from io import BytesIO
+from django.contrib.auth.hashers import make_password, check_password
 from bson.objectid import ObjectId
-import logging
-import os
+
 
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
@@ -168,24 +158,24 @@ def signup(request):
 
             # email = data.get("email")
             username = data.get("username")
+            email = data.get("email")
 
-            # if collectionsignup.find_one({"email": email}):
-            #     return JsonResponse({"error": "Email has already been used."}, status=400)
+            if collectionsignup.find_one({"email": email}):
+                return JsonResponse({"error": "Email has already been used."}, status=400)
 
             if collectionsignup.find_one({"username": username}):
                 return JsonResponse({"error": "Username has already been used."}, status=400)
 
             hashed_password = make_password(data.get("password"))
-
-            user_data = {
+            collectionsignup.insert_one({
                 "name": data.get("name"),
-                "email": data.get("email"),
-                "username": data.get("username"),
-                "password": hashed_password,
-            }
-            # print(user_data)
+                "email": email,
+                "username": username,
+                "password": hashed_password
+            })
 
-            collectionsignup.insert_one(user_data)
+
+
 
             return JsonResponse({"message": "User signed up successfully!"}, status=201)
         except Exception as e:
@@ -208,6 +198,7 @@ def login(request):
 
             if not user:
                 return JsonResponse({"error": "User not found or email is incorrect."}, status=404)
+        
 
             # Check if account is locked
             if user.get("is_locked"):
@@ -217,8 +208,11 @@ def login(request):
                     collectionsignup.update_one({"email": email}, {"$set": {"is_locked": False, "failed_attempts": 0}})
                 else:
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
+                
+            hashed_password = user["password"]
 
-            if user.get("password") != password:
+            if not check_password(password, hashed_password):
+
                 # Increment failed login attempts
                 failed_attempts = user.get("failed_attempts", 0) + 1
                 if failed_attempts >= 5:
@@ -227,7 +221,7 @@ def login(request):
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
                 else:
                     collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": failed_attempts}})
-                    return JsonResponse({"error": "Invalid password."}, status=401)
+                    return JsonResponse({"error": "Incorrect password."}, status=401)
 
             # Reset failed login attempts on successful login
             collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": 0}})
@@ -371,7 +365,7 @@ def create_post(request):
                 "text": data.get("text"),
                 "image": data.get("image"),
                 "username": data.get("username"),
-                "created_at": datetime.utcnow()
+                "created_at": datetime.now()
             }
 
             post_collection.insert_one(post_data)
