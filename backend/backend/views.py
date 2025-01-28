@@ -379,8 +379,8 @@ def get_posts(request):
     if request.method == 'GET':
 
         try:
-            posts = list(post_collection.find())
-            return JsonResponse({"posts": posts.get("text")}, status=200)
+            post = list(post_collection.find())
+            return JsonResponse({"post": post.get("text")}, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
@@ -414,21 +414,21 @@ def profile(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            email = data.get("email")
+            username= data.get("username")
 
-            if not email:
-                return JsonResponse({"error": "Email is required."}, status=400)
+            if not username:
+                return JsonResponse({"error": "username is required."}, status=400)
 
-            user = collectionsignup.find_one({"email": email}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+            user = collectionsignup.find_one({"username": username}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
 
             if not user:
                 return JsonResponse({"error": "User not found."}, status=404)
 
-            posts = list(post_collection.find({"email": email}, {"_id": 0}))
+            post = list(post_collection.find({"username": username}, {"_id": 0}))
 
             response_data = {
                 "user": user,
-                "posts": posts
+                "post": post
             }
 
             return JsonResponse(response_data, status=200)
@@ -438,7 +438,7 @@ def profile(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
-@csrf_exempt
-def follower(request):
+# @csrf_exempt
+# def follower(request):
     
 
