@@ -29,6 +29,7 @@ try:
     collectionsignup = db['test'] 
     otp_collection = db['otp_storage']  
     post_collection = db['post']
+    friends_collection = db['friends']
 except Exception as e:
     raise ConnectionError(f"Failed to connect to MongoDB: {e}")
 
@@ -384,8 +385,8 @@ def get_posts(request):
     if request.method == 'GET':
 
         try:
-            posts = list(post_collection.find())
-            return JsonResponse({"posts": posts.get("text")}, status=200)
+            post = list(post_collection.find())
+            return JsonResponse({"posts": post.get("text")}, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
@@ -444,7 +445,121 @@ def profile(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
-# @csrf_exempt
-# def follower(request):
+@csrf_exempt
+def friend_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            friend_username = data.get("friend_username")
+
+
+            if not username or not friend_username:
+                return JsonResponse({"error": "Username and friend's username are required."}, status=400)
+            
+            user = collectionsignup.find_one({"username": username})
+            friend = collectionsignup.find_one({"username": friend_username})
+
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+            if not friend:
+                return JsonResponse({"error": "Friend not found."}, status=404)
+            
+            # Update the friend request in the database
+            result = collectionsignup.update_one(
+                {"username": username},
+                {"$set": {"friend_request": friend_username}}
+
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "User not found."}, status=404)
+            
+            return JsonResponse({"message": "Friend request sent successfully"}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+    
+@csrf_exempt
+def accept_friend_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            friend_username = data.get("friend_username")
+
+            if not username or not friend_username:
+                return JsonResponse({"error": "Username and friend's username are required."}, status=400)
+            
+            user = collectionsignup.find_one({"username": username})
+            friend = collectionsignup.find_one({"username": friend_username})
+
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+            if not friend:
+                return JsonResponse({"error": "Friend not found."}, status=404)
+            
+            # Update the friend request in the database
+            result = collectionsignup.update_one(
+                {"username": username},
+                {"$set": {"friends": friend_username}}
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "User not found."}, status=404)
+            
+            return JsonResponse({"message": "Friend request accepted successfully"}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+    
+@csrf_exempt
+def reject_friend_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            friend_username = data.get("friend_username")
+
+            if not username or not friend_username:
+                return JsonResponse({"error": "Username and friend's username are required."}, status=400)
+            
+            user = collectionsignup.find_one({"username": username})
+            friend = collectionsignup.find_one({"username": friend_username})
+
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+            if not friend:
+                return JsonResponse({"error": "Friend not found."}, status=404)
+            
+            # Update the friend request in the database
+            result = collectionsignup.update_one(
+                {"username": username},
+                {"$set": {"friend_request": ""}}
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "User not found."}, status=404)
+            
+            return JsonResponse({"message": "Friend request rejected successfully"}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+        
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+    
+@csrf_exempt
+def get_friends(request):
+    if request.method == 'GET':
+        try:
+            friends = list(collectionsignup.find({"friends": {"$ne": None}}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0}))
+            return JsonResponse({"friends": friends}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     
 

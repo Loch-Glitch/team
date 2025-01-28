@@ -16,6 +16,8 @@ urlpatterns = [
     path('api/delete-post/', views.delete_post, name='delete_post'),
     path('api/reset-password/', views.reset_password, name='reset_password'),
     path('api/profile/', views.profile, name="profile"),
-    
-
+    path('api/friend-request/', views.friend_request, name="friend_request"),
+    path('api/accept-friend-request/', views.accept_friend_request, name="accept_friend_request"),
+    path('api/reject-friend-request/', views.reject_friend_request, name="reject_friend_request"),
+    path('api/get-friends/', views.get_friends, name="get_friends"),
 ]
