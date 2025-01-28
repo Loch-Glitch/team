@@ -73,13 +73,10 @@ def request_email_otp(request):
             if not email:
                 return JsonResponse({"error": "Email is required."}, status=400)
 
-            # Generate OTP
             otp = generate_otp()
             
-            # Store OTP with expiration time (5 minutes from now)
-            expiration_time = datetime.utcnow() + timedelta(minutes=5)
+            expiration_time = datetime.now() + timedelta(minutes=5)
             
-            # Update or insert OTP document
             otp_collection.update_one(
                 {"email": email},
                 {
@@ -91,7 +88,6 @@ def request_email_otp(request):
                 upsert=True
             )
 
-            # Send OTP via email
             if send_email_otp(email, otp):
                 return JsonResponse({"message": "OTP sent successfully"}, status=200)
             else:
@@ -114,7 +110,6 @@ def verify_email_otp(request):
             if not email or not submitted_otp:
                 return JsonResponse({"error": "Email and OTP are required."}, status=400)
 
-            # Find the stored OTP document
             otp_doc = otp_collection.find_one({"email": email})
 
             if not otp_doc:
@@ -123,15 +118,13 @@ def verify_email_otp(request):
             stored_otp = otp_doc.get('otp')
             expiration_time = otp_doc.get('expiration_time')
 
-            # Check if OTP has expired
-            if datetime.utcnow() > expiration_time:
+            if datetime.now() > expiration_time:
                 return JsonResponse({"error": "OTP has expired."}, status=400)
 
-            # Verify OTP
+            
             if submitted_otp != stored_otp:
                 return JsonResponse({"error": "Invalid OTP."}, status=400)
 
-            # Delete the used OTP
             otp_collection.delete_one({"email": email})
 
             return JsonResponse({"message": "Email verified successfully"}, status=200)
@@ -156,7 +149,7 @@ def signup(request):
             if data.get("password") != data.get("confirmPassword"):
                 return JsonResponse({"error": "Passwords do not match."}, status=400)
 
-            # email = data.get("email")
+            
             username = data.get("username")
             email = data.get("email")
 
@@ -173,9 +166,6 @@ def signup(request):
                 "username": username,
                 "password": hashed_password
             })
-
-
-
 
             return JsonResponse({"message": "User signed up successfully!"}, status=201)
         except Exception as e:
@@ -199,12 +189,9 @@ def login(request):
             if not user:
                 return JsonResponse({"error": "User not found or email is incorrect."}, status=404)
         
-
-            # Check if account is locked
             if user.get("is_locked"):
                 lock_time = user.get("lock_time")
-                if lock_time and datetime.utcnow() > lock_time + timedelta(minutes=5):
-                    # Unlock the account after 5 minutes
+                if lock_time and datetime.now() > lock_time + timedelta(minutes=5):
                     collectionsignup.update_one({"email": email}, {"$set": {"is_locked": False, "failed_attempts": 0}})
                 else:
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
@@ -213,17 +200,14 @@ def login(request):
 
             if not check_password(password, hashed_password):
 
-                # Increment failed login attempts
                 failed_attempts = user.get("failed_attempts", 0) + 1
                 if failed_attempts >= 5:
-                    # Lock the account
-                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": True, "lock_time": datetime.utcnow()}})
+                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": True, "lock_time": datetime.now()}})
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
                 else:
                     collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": failed_attempts}})
                     return JsonResponse({"error": "Incorrect password."}, status=401)
 
-            # Reset failed login attempts on successful login
             collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": 0}})
 
             response_data = {
@@ -254,13 +238,10 @@ def request_password_reset_otp(request):
             if not email:
                 return JsonResponse({"error": "Email is required."}, status=400)
 
-            # Generate OTP
             otp = generate_otp()
             
-            # Store OTP with expiration time (5 minutes from now)
-            expiration_time = datetime.utcnow() + timedelta(minutes=5)
+            expiration_time = datetime.now() + timedelta(minutes=5)
             
-            # Update or insert OTP document
             otp_collection.update_one(
                 {"email": email},
                 {
@@ -272,7 +253,6 @@ def request_password_reset_otp(request):
                 upsert=True
             )
 
-            # Send OTP via email
             if send_email_otp(email, otp):
                 return JsonResponse({"message": "OTP sent successfully"}, status=200)
             else:
@@ -295,7 +275,6 @@ def verify_password_reset_otp(request):
             if not email or not submitted_otp:
                 return JsonResponse({"error": "Email and OTP are required."}, status=400)
 
-            # Find the stored OTP document
             otp_doc = otp_collection.find_one({"email": email})
 
             if not otp_doc:
@@ -304,15 +283,12 @@ def verify_password_reset_otp(request):
             stored_otp = otp_doc.get('otp')
             expiration_time = otp_doc.get('expiration_time')
 
-            # Check if OTP has expired
-            if datetime.utcnow() > expiration_time:
+            if datetime.now() > expiration_time:
                 return JsonResponse({"error": "OTP has expired."}, status=400)
 
-            # Verify OTP
             if submitted_otp != stored_otp:
                 return JsonResponse({"error": "Invalid OTP."}, status=400)
 
-            # Delete the used OTP
             otp_collection.delete_one({"email": email})
 
             return JsonResponse({"message": "Email verified successfully"}, status=200)
@@ -334,7 +310,6 @@ def reset_password(request):
             if not email or not new_password:
                 return JsonResponse({"error": "Email and new password are required."}, status=400)
 
-            # Update the password in the database
             result = collectionsignup.update_one(
                 {"email": email},
                 {"$set": {"password": new_password}}
@@ -461,7 +436,7 @@ def friend_request(request):
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
             
-            # Update the friend request in the database
+            
             result = collectionsignup.update_one(
                 {"username": username},
                 {"$set": {"friend_request": friend_username}}
@@ -497,7 +472,7 @@ def accept_friend_request(request):
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
             
-            # Update the friend request in the database
+            
             result = collectionsignup.update_one(
                 {"username": username},
                 {"$set": {"friends": friend_username}}
@@ -532,7 +507,7 @@ def reject_friend_request(request):
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
             
-            # Update the friend request in the database
+            
             result = collectionsignup.update_one(
                 {"username": username},
                 {"$set": {"friend_request": ""}}
