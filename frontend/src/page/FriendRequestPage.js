@@ -3,19 +3,22 @@ import axios from 'axios';
 
 const FriendRequestPage = () => {
     const [username, setUsername] = useState('');
-    const [friendUsername, setFriendUsername] = useState('');
+    const [friend_username, setFriendUsername] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
     const sendFriendRequest = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/friend_request', { username, friendUsername });
+            const response = await axios.post('http://127.0.0.1:8000/api/friend-request/', { username, friend_username });
             setMessage(response.data.message);
             setError('');
         } catch (err) {
             setError(err.response.data.error);
         }
     };
+
+
+
 
     return (
         <div>
@@ -29,7 +32,7 @@ const FriendRequestPage = () => {
             <input 
                 type="text" 
                 placeholder="Friend's username" 
-                value={friendUsername} 
+                value={friend_username} 
                 onChange={(e) => setFriendUsername(e.target.value)} 
             />
             <button onClick={sendFriendRequest}>Send Friend Request</button>
@@ -40,3 +43,4 @@ const FriendRequestPage = () => {
 };
 
 export default FriendRequestPage;
+

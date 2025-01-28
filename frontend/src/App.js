@@ -9,6 +9,7 @@ import CreatePost from './page/create_post';
 import PrivacyDoc from './page/PrivacyDoc';
 import ProfilePage from './page/ProfilePage';
 import FriendRequestPage from './page/FriendRequestPage';
+import FriendListPage from './page/FriendListPage';
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
         <Route path="/create-post" element={<CreatePost />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/friend-request" element={<FriendRequestPage />} />
+        <Route path="/friend-list" element={<FriendListPage />} />
+
       </Routes>
     </BrowserRouter>
   );
