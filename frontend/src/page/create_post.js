@@ -26,15 +26,19 @@ const App = () => {
 
   // Create a new post
   const createPost = async () => {
-    if (!newPost.text ) {
+    if (!newPost.text) {
       alert('Text required!');
       return;
     }
     try {
       setLoading(true);
-      await axios.post('http://127.0.0.1:8000/api/create-post/', newPost);
+      const postData = {
+        ...newPost,
+        image: newPost.image ? newPost.image.split(',')[1] : '' // Remove Base64 prefix before sending to backend
+      };
+      await axios.post('http://127.0.0.1:8000/api/create-post/', postData);
       alert('Post created successfully!');
-      setNewPost({ text: '', username: '', image: '' });
+      setNewPost({ text: '', username: JSON.parse(localStorage.getItem('userInfo')).username, image: '' });
       fetchPosts();
     } catch (error) {
       console.error('Error creating post:', error);
@@ -47,7 +51,7 @@ const App = () => {
   const deletePost = async (id) => {
     try {
       setLoading(true);
-      await axios.post('/api/delete-post/', { id });
+      await axios.post('http://127.0.0.1:8000/api/delete-post/', { id });
       alert('Post deleted successfully!');
       fetchPosts();
     } catch (error) {
@@ -55,6 +59,16 @@ const App = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle image selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewPost({ ...newPost, image: reader.result });
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -72,10 +86,8 @@ const App = () => {
           className="w-full p-2 border rounded mb-2"
         />
         <input
-          type="text"
-          placeholder="Image URL (Optional)"
-          value={newPost.image}
-          onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+          type="file"
+          onChange={handleImageChange}
           className="w-full p-2 border rounded mb-2"
         />
         <button
@@ -100,7 +112,7 @@ const App = () => {
                   <p className="text-sm text-gray-500">By: {post.username}</p>
                   {post.image && (
                     <img
-                      src={post.image}
+                      src={`data:image/jpeg;base64,${post.image}`}
                       alt="Post"
                       className="mt-2 rounded-lg w-full object-cover"
                     />

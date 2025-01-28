@@ -325,20 +325,54 @@ def reset_password(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+# @csrf_exempt
+# def create_post(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+            
+#             required_fields = ["text","username"]
+#             for field in required_fields:
+#                 if not data.get(field):
+#                     return JsonResponse({"error": f"{field} is required."}, status=400)
+                
+#             post_data = {
+#                 "text": data.get("text"),
+#                 "image": data.get("image"),
+#                 "username": data.get("username"),
+#                 "created_at": datetime.now()
+#             }
+
+#             post_collection.insert_one(post_data)
+
+#             return JsonResponse({"message": "Post created successfully!"}, status=201)
+#         except Exception as e:
+#             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+import base64
+
+
+
 @csrf_exempt
 def create_post(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             
-            required_fields = ["text","username"]
+            required_fields = ["text", "username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
-                
+            
+            # Convert image to Base64
+            image_base64 = data.get("image")
+            
             post_data = {
                 "text": data.get("text"),
-                "image": data.get("image"),
+                "image": image_base64,
                 "username": data.get("username"),
                 "created_at": datetime.now()
             }
@@ -350,6 +384,7 @@ def create_post(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def get_posts(request):
@@ -445,7 +480,6 @@ def send_friend_request(request):
             if friends_collection.find_one({"username": receiver_username, "pending_requests": sender_username}):
                 return JsonResponse({"error": "Friend request already sent."}, status=400)
 
-            # Add to pending_requests and following
             friends_collection.update_one(
                 {"username": receiver_username},
                 {"$addToSet": {"pending_requests": sender_username}},
@@ -485,7 +519,6 @@ def accept_friend_request(request):
             if not friends_collection.find_one({"username": receiver_username, "pending_requests": sender_username}):
                 return JsonResponse({"error": "No pending friend request found."}, status=400)
 
-            # Remove from pending_requests and add to followers
             friends_collection.update_one(
                 {"username": receiver_username},
                 {"$pull": {"pending_requests": sender_username}}
@@ -517,7 +550,6 @@ def unfollow_user(request):
             if not follower or not following:
                 return JsonResponse({"error": "Both follower and following usernames are required."}, status=400)
 
-            # Remove from following and followers lists
             friends_collection.update_one(
                 {"username": follower},
                 {"$pull": {"following": following}}

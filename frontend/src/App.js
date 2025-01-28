@@ -11,6 +11,7 @@ import ProfilePage from './page/ProfilePage';
 import FriendRequestPage from './page/FriendRequestPage';
 import Search from './page/SearchButton';
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -26,6 +27,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/friend-request" element={<FriendRequestPage />} />
         <Route path="/search" element={<Search />} />
+        
 
       </Routes>
     </BrowserRouter>
