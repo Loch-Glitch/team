@@ -14,12 +14,20 @@ function HomePage({ isDarkMode }) {
 
   const handleLogout = async () => {
     try {
-      Cookies.remove('csrftoken'); // Only remove on logout
+      // Cookies.remove('csrftoken'); // Only remove on logout
+      localStorage.clear()
       navigate('/login');
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem('userInfo') == null) {
+      console.log(localStorage.getItem('userInfo'));
+      navigate('/login')
+    }
+  }, [])
 
   const styles = {
     container: {
