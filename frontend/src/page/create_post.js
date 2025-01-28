@@ -31,7 +31,7 @@ const App = () => {
     }
     try {
       setLoading(true);
-      await axios.post('/api/create-post/', newPost);
+      await axios.post('http://127.0.0.1:8000/api/create-post/', newPost);
       alert('Post created successfully!');
       setNewPost({ text: '', username: '', image: '' });
       fetchPosts();

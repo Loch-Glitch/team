@@ -6,8 +6,6 @@ import ForgotPassword from './page/ForgotPassword';
 import ResetPassword from './page/ResetPassword';
 import HomePage from './page/Homepage';
 import CreatePost from './page/create_post';
-import Search from './page/search';
-import Settings from './page/settings';
 import PrivacyDoc from './page/PrivacyDoc';
 import ProfilePage from './page/ProfilePage';
 import FriendRequestPage from './page/FriendRequestPage';
@@ -24,8 +22,6 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/privacydoc" element={<PrivacyDoc />} />
         <Route path="/create-post" element={<CreatePost />} />
-        {/* <Route path="/search" element={<Search />} /> */}
-        {/* <Route path="/settings" element={<Settings />} /> */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/friend-request" element={<FriendRequestPage />} />
       </Routes>
