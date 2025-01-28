@@ -6,8 +6,11 @@ import ForgotPassword from './page/ForgotPassword';
 import ResetPassword from './page/ResetPassword';
 import HomePage from './page/Homepage';
 import ProtectedRoute from './page/ProtectedRoute';
-import ProfilePage from './page/ProfilePage';
+import CreatePost from './page/CreatePost';
+import Search from './page/Search';
+
 import PrivacyDoc from './page/PrivacyDoc';
+
 
 
 function App() {
@@ -26,7 +29,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/privacydoc" element={<PrivacyDoc />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/create-post" element={<CreatePost />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/user_profile/:username" element={<UserProfile />} />
+        
 
 
       </Routes>
