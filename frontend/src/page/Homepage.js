@@ -1,4 +1,4 @@
-import React, { use, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRegUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,35 +11,35 @@ function HomePage({ isDarkMode }) {
   const [text, settext] = useState("")
   const [ errorMessage , setErrorMessage] = useState("")
 
-  useEffect(() => {
-    let timeoutId;
+  // useEffect(() => {
+  //   let timeoutId;
 
-    const resetTimer = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        Cookies.remove('csrftoken'); // Clear user session
-        navigate('/login'); // Redirect to login after inactivity
-      }, 10000); // 1 minute
-    };
+  //   const resetTimer = () => {
+  //     clearTimeout(timeoutId);
+  //     timeoutId = setTimeout(() => {
+  //       Cookies.remove('csrftoken'); // Clear user session
+  //       navigate('/login'); // Redirect to login after inactivity
+  //     }, 10000); // 1 minute
+  //   };
 
-    // Event listeners for user activity
-    window.addEventListener('mousemove', resetTimer);
-    window.addEventListener('keydown', resetTimer);
-    window.addEventListener('click', resetTimer);
-    window.addEventListener('scroll', resetTimer);
+  //   // Event listeners for user activity
+  //   window.addEventListener('mousemove', resetTimer);
+  //   window.addEventListener('keydown', resetTimer);
+  //   window.addEventListener('click', resetTimer);
+  //   window.addEventListener('scroll', resetTimer);
 
-    // Start the timer
-    resetTimer();
+  //   // Start the timer
+  //   resetTimer();
 
-    // Cleanup event listeners and timeout on component unmount
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('mousemove', resetTimer);
-      window.removeEventListener('keydown', resetTimer);
-      window.removeEventListener('click', resetTimer);
-      window.removeEventListener('scroll', resetTimer);
-    };
-  }, [navigate]);
+  //   // Cleanup event listeners and timeout on component unmount
+  //   return () => {
+  //     clearTimeout(timeoutId);
+  //     window.removeEventListener('mousemove', resetTimer);
+  //     window.removeEventListener('keydown', resetTimer);
+  //     window.removeEventListener('click', resetTimer);
+  //     window.removeEventListener('scroll', resetTimer);
+  //   };
+  // }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -158,8 +158,15 @@ const userpost = {
       </div>
       <h1 style={styles.header}>Welcome to the Home Page</h1>
       <p style={styles.message}>You have successfully logged in!</p>
+      {/* <input
+            style={styles.postform_icon} onClick={() => setDropdown(!dropdown)} />
+            type="text"
+            placeholder="text"
+            value={text}
+            onChange={(e) => settext(e.target.value)}  */}
+      <button onClick={() => navigate('/create_post')} > Create post </button>
     </div>
   );
-};
+}
 
 export default HomePage;
