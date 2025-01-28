@@ -306,7 +306,7 @@ function SignUpPage({ isDarkMode }) {
         </button>
       </div>
       <div>
-        <p>Already have an account? <Link to="/" style={styles.link}>Login</Link></p>
+        <p>Already have an account? <Link to="/login" style={styles.link}>Login</Link></p>
       </div>
     </div>
   );

@@ -538,5 +538,28 @@ def get_friends(request):
             return JsonResponse({"friends": friends}, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+        
+        
+@csrf_exempt
+def search_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+
+            if not username:
+                return JsonResponse({"error": "username is required."}, status=400)
+
+            user = collectionsignup.find_one({"username": username}, {"_id": 0, "email": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+
+            return JsonResponse({"user": user}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
     
 
