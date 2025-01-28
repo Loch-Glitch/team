@@ -20,13 +20,14 @@ const App = () => {
   };
 
   useEffect(() => {
+    setNewPost({ ...newPost, username: JSON.parse(localStorage.getItem('userInfo')).username });
     fetchPosts();
   }, []);
 
   // Create a new post
   const createPost = async () => {
-    if (!newPost.text || !newPost.username) {
-      alert('Text and Username are required!');
+    if (!newPost.text ) {
+      alert('Text required!');
       return;
     }
     try {
@@ -68,13 +69,6 @@ const App = () => {
           placeholder="Text"
           value={newPost.text}
           onChange={(e) => setNewPost({ ...newPost, text: e.target.value })}
-          className="w-full p-2 border rounded mb-2"
-        />
-        <input
-          type="text"
-          placeholder="Username"
-          value={newPost.username}
-          onChange={(e) => setNewPost({ ...newPost, username: e.target.value })}
           className="w-full p-2 border rounded mb-2"
         />
         <input
