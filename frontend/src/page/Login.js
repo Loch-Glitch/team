@@ -41,7 +41,7 @@ function LoginPage({ isDarkMode, toggleMode }) {
     }
   };
 
-  const handleSignupRedirect = () => navigate('/signup');
+  const handleSignupRedirect = () => navigate('/');
   const handleForgotPasswordRedirect = () => navigate('/forgot-password');
 
   const styles = {
