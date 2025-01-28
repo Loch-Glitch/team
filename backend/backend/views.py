@@ -445,7 +445,7 @@ def friend_request(request):
             
             result = collectionsignup.update_one(
                 {"username": username},
-                {"$set": {"friend_request": friend_username}}
+                {"$addToSet": {"friend_request": friend_username}}
 
             )
 
