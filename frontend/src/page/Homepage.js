@@ -2,49 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { FaRegUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
+import SearchButton from './SearchButton'; // Importing the SearchButton component
 
 function HomePage({ isDarkMode }) {
 
   const [dropdown, setDropdown] = useState(false);
-  const navigate = useNavigate()
-  const [text, settext] = useState("")
-  const [ errorMessage , setErrorMessage] = useState("")
-
-  // useEffect(() => {
-  //   let timeoutId;
-
-  //   const resetTimer = () => {
-  //     clearTimeout(timeoutId);
-  //     timeoutId = setTimeout(() => {
-  //       Cookies.remove('csrftoken'); // Clear user session
-  //       navigate('/login'); // Redirect to login after inactivity
-  //     }, 10000); // 1 minute
-  //   };
-
-  //   // Event listeners for user activity
-  //   window.addEventListener('mousemove', resetTimer);
-  //   window.addEventListener('keydown', resetTimer);
-  //   window.addEventListener('click', resetTimer);
-  //   window.addEventListener('scroll', resetTimer);
-
-  //   // Start the timer
-  //   resetTimer();
-
-  //   // Cleanup event listeners and timeout on component unmount
-  //   return () => {
-  //     clearTimeout(timeoutId);
-  //     window.removeEventListener('mousemove', resetTimer);
-  //     window.removeEventListener('keydown', resetTimer);
-  //     window.removeEventListener('click', resetTimer);
-  //     window.removeEventListener('scroll', resetTimer);
-  //   };
-  // }, [navigate]);
+  const navigate = useNavigate();
+  const [text, settext] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogout = async () => {
     try {
       Cookies.remove('csrftoken'); // Only remove on logout
-      navigate('/login')
+      navigate('/login');
     } catch (error) {
       console.error("Error during logout:", error);
     }
@@ -113,19 +84,6 @@ function HomePage({ isDarkMode }) {
     }
   };
 
-const userpost = {
-  text
-};
-
-  const handlecreatepost = async()=> {
-    try {
-    const response = await axios.post("http://127.0.0.1:8000/api/create-post/" , userpost)
-    }
-    catch (error) {
-      setErrorMessage("an error occured")
-   }
-  };
-
   return (
     <div style={styles.container}>
       <div className='profile' style={styles.profile}>
@@ -150,20 +108,12 @@ const userpost = {
                 <FaSignOutAlt style={styles.icon} /> Logout
               </li>
             </ul>
-
-          
-          
           </div>
         )}
       </div>
       <h1 style={styles.header}>Welcome to the Home Page</h1>
       <p style={styles.message}>You have successfully logged in!</p>
-      {/* <input
-            style={styles.postform_icon} onClick={() => setDropdown(!dropdown)} />
-            type="text"
-            placeholder="text"
-            value={text}
-            onChange={(e) => settext(e.target.value)}  */}
+      <SearchButton /> {/* Adding the SearchButton component */}
       <button onClick={() => navigate('/create_post')} > Create post </button>
     </div>
   );

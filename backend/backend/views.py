@@ -443,7 +443,8 @@ def friend_request(request):
             
             result = collectionsignup.update_one(
                 {"username": username},
-                {"$addToSet": {"friend_requests": friend_username}}
+                {"$addToSet": {"friend_request": friend_username}}
+
             )
 
             if result.modified_count == 0:
