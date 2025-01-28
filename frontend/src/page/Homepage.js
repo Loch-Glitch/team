@@ -159,11 +159,11 @@ const userpost = {
       <h1 style={styles.header}>Welcome to the Home Page</h1>
       <p style={styles.message}>You have successfully logged in!</p>
       <input
-            < style={styles.postform_icon} onClick={() => setDropdown(!dropdown)} />
+            style={styles.postform_icon} onClick={() => setDropdown(!dropdown)} />
             type="text"
             placeholder="text"
             value={text}
-            onChange={(e) => settext(e.target.value)} />
+            onChange={(e) => settext(e.target.value)} 
       <button onClick={handlecreatepost} > Create post </button>
     </div>
   );

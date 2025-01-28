@@ -31,6 +31,7 @@ function LoginPage({ isDarkMode, toggleMode }) {
         return;
       }
 
+      localStorage.setItem('userInfo', JSON.stringify(data.user));
       setError('');
       console.log(data.message);
       navigate('/home');
