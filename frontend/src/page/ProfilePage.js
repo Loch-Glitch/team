@@ -10,63 +10,68 @@ const ProfilePage = () => {
     const [friends, setFriends] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
-     const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState([]);
 
     const fetchPosts = async () => {
         try {
-          setLoading(true);
-          const response = await axios.get('http://127.0.0.1:8000/api/get-posts/');
-          setPosts(response.data.posts || []);
+            setLoading(true);
+            const response = await axios.get('http://127.0.0.1:8000/api/get-posts/');
+            setPosts(response.data.posts || []);
         } catch (error) {
-          console.error('Error fetching posts:', error);
+            console.error('Error fetching posts:', error);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     const handleDeletePost = async (id) => {
         try {
-          setLoading(true);
-          console.log(profileData);
-          
-          await axios.post('http://127.0.0.1:8000/api/delete-post/', { id });
-          alert('Post deleted successfully!');
-          fetchPosts();
+            setLoading(true);
+            console.log(profileData);
+
+            await axios.post('http://127.0.0.1:8000/api/delete-post/', { id });
+            alert('Post deleted successfully!');
+            fetchPosts();
         } catch (error) {
-          console.error('Error deleting post:', error);
+            console.error('Error deleting post:', error);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
 
     // Fetch profile data on component mount or when username changes
     useEffect(() => {
+        console.log(JSON.parse(localStorage.getItem('userInfo')).username);
         if (localStorage.getItem('userInfo') == null) {
             navigate('/login');
         } else {
-            setUsername(JSON.parse(localStorage.getItem('userInfo')).username);
-            fetchProfile();
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            setUsername(userInfo.username);
+            fetchProfile(userInfo.username);
         }
-    }, [username]);
+    }, [navigate]);
 
     // Function to fetch profile data
-    const fetchProfile = async () => {
+    const fetchProfile = async (userName) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/profile/', { username });
+            const response = await axios.post('http://127.0.0.1:8000/api/profile/', { username: userName });
             setProfileData(response.data);
             setFriendRequests(response.data.user.friend_request);
             setFriends(response.data.user.friends);
             setError('');
         } catch (err) {
+            console.log(err.response?.data?.error);
+
             setError(err.response?.data?.error || 'An error occurred while fetching profile data.');
         }
     };
 
+
     // Function to accept friend request
-    const acceptFriendRequest = async () => {
+    const acceptFriendRequest = async (friendUsername) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/accept-friend-request/', { username, friend_username: friendRequests });
+            const response = await axios.post('http://127.0.0.1:8000/api/accept-friend-request/', { username, friend_username: friendUsername });
             fetchProfile(); // Refresh profile data after accepting friend request
             // await axios.post('http://127.0.0.1:8000/api/accept-friend-request/', { username, friend_username: friendRequests });
             // navigate('/profile');
@@ -100,7 +105,7 @@ const ProfilePage = () => {
                         <div key={index}>
                             <pre>{post.text}</pre>
                             <button onClick={() => handleDeletePost(post._id)}>Delete</button>
-                        {/* </div>
+                            {/* </div>
                     ))}
                     <h2>Friend Requests:</h2>
                     {friends != friendRequests && ( */}
@@ -116,24 +121,27 @@ const ProfilePage = () => {
                     ))}
                     <h2>Friend Requests:</h2>
                     {friends !== friendRequests &&
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
-                                <p className='' style={{ marginRight: '20px' }}>{friendRequests}</p>
-                                <button onClick={acceptFriendRequest}>Accept</button>
-                                <button onClick={rejectFriendRequest}>Reject</button>
-                            </div>
-                        </div>
+                        friendRequests?.map((friend) =>
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
+                                    <p className='' style={{ marginRight: '20px' }}>{friend}</p>
+                                    <button onClick={() => acceptFriendRequest(friend)}>Accept</button>
+                                    <button onClick={() => rejectFriendRequest(friend)}>Reject</button>
+                                </div>
+                            </div>)
                     }
                     {/* <h2>Friends</h2>
                     {friends && (
                         </div>} */}
                     <h2>Friends</h2>
                     {friends &&
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'center', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
-                                <p className='' style={{ marginRight: '20px' }}>{friendRequests}</p>
+                        friends.map((friend) =>
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'center', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
+                                    <p className='' style={{ marginRight: '20px' }}>{friend}</p>
+                                </div>
                             </div>
-                        </div>
+                        )
                     }
                 </div>
             )}

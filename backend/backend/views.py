@@ -18,8 +18,8 @@ MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
 try:
     client = pymongo.MongoClient(MONGO_URI)
     db = client['Project']
-    collectionsignup = db['test'] 
-    otp_collection = db['otp_storage']  
+    collectionsignup = db['test']
+    otp_collection = db['otp_storage']
     post_collection = db['post']
     friends_collection = db['friends']
 except Exception as e:
@@ -27,14 +27,15 @@ except Exception as e:
 
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"  
-EMAIL_HOST_PASSWORD = "zeuz ybit tjgt prus"  
+EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"
+EMAIL_HOST_PASSWORD = "zeuz ybit tjgt prus"
 EMAIL_USE_TLS = True
 
 
 def generate_otp():
     """Generate a 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
+
 
 def send_email_otp(to_email, otp):
     """Send OTP via email"""
@@ -65,7 +66,7 @@ def send_email_otp(to_email, otp):
         return False
 
 
-# @csrf_exempt  
+# @csrf_exempt
 # def get_posts(request):
 #     if request.method != 'GET':
 #         return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
@@ -80,18 +81,18 @@ def send_email_otp(to_email, otp):
 
 #     posts = list(post_collection.find().sort('created_at', -1))
 
-#     page_number = request.GET.get('page', 1) 
-#     paginator = Paginator(posts, 10) 
+#     page_number = request.GET.get('page', 1)
+#     paginator = Paginator(posts, 10)
 #     page_obj = paginator.get_page(page_number)
 
 #     data = []
 #     for post in page_obj:
 #         new_post = {
-#             'id': str(post['_id']),  
+#             'id': str(post['_id']),
 #             'content': post.get('content', ''),
-#             'likes': post.get('likes', []), 
-#             'created_at': post.get('created_at', ''),  
-#             'liked': my_user.username in post.get('likes', [])  
+#             'likes': post.get('likes', []),
+#             'created_at': post.get('created_at', ''),
+#             'liked': my_user.username in post.get('likes', [])
 #         }
 #         data.append(new_post)
 
@@ -116,9 +117,9 @@ def request_email_otp(request):
                 return JsonResponse({"error": "Email is required."}, status=400)
 
             otp = generate_otp()
-            
+
             expiration_time = datetime.now() + timedelta(minutes=5)
-            
+
             otp_collection.update_one(
                 {"email": email},
                 {
@@ -139,6 +140,7 @@ def request_email_otp(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def verify_email_otp(request):
@@ -163,7 +165,6 @@ def verify_email_otp(request):
             if datetime.now() > expiration_time:
                 return JsonResponse({"error": "OTP has expired."}, status=400)
 
-            
             if submitted_otp != stored_otp:
                 return JsonResponse({"error": "Invalid OTP."}, status=400)
 
@@ -183,7 +184,8 @@ def signup(request):
         try:
             data = json.loads(request.body)
 
-            required_fields = ["name", "email", "password", "confirmPassword", "username"]
+            required_fields = ["name", "email",
+                               "password", "confirmPassword", "username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
@@ -191,7 +193,6 @@ def signup(request):
             if data.get("password") != data.get("confirmPassword"):
                 return JsonResponse({"error": "Passwords do not match."}, status=400)
 
-            
             username = data.get("username")
             email = data.get("email")
 
@@ -215,6 +216,7 @@ def signup(request):
     else:
         return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
+
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
@@ -230,27 +232,31 @@ def login(request):
 
             if not user:
                 return JsonResponse({"error": "User not found or email is incorrect."}, status=404)
-        
+
             if user.get("is_locked"):
                 lock_time = user.get("lock_time")
                 if lock_time and datetime.now() > lock_time + timedelta(minutes=5):
-                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": False, "failed_attempts": 0}})
+                    collectionsignup.update_one(
+                        {"email": email}, {"$set": {"is_locked": False, "failed_attempts": 0}})
                 else:
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
-                
+
             hashed_password = user["password"]
 
             if not check_password(password, hashed_password):
 
                 failed_attempts = user.get("failed_attempts", 0) + 1
                 if failed_attempts >= 5:
-                    collectionsignup.update_one({"email": email}, {"$set": {"is_locked": True, "lock_time": datetime.now()}})
+                    collectionsignup.update_one(
+                        {"email": email}, {"$set": {"is_locked": True, "lock_time": datetime.now()}})
                     return JsonResponse({"error": "Account is locked due to too many failed login attempts. Try again later."}, status=403)
                 else:
-                    collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": failed_attempts}})
+                    collectionsignup.update_one(
+                        {"email": email}, {"$set": {"failed_attempts": failed_attempts}})
                     return JsonResponse({"error": "Incorrect password."}, status=401)
 
-            collectionsignup.update_one({"email": email}, {"$set": {"failed_attempts": 0}})
+            collectionsignup.update_one(
+                {"email": email}, {"$set": {"failed_attempts": 0}})
 
             response_data = {
                 "message": "Login successful!",
@@ -269,6 +275,7 @@ def login(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
+
 @csrf_exempt
 def request_password_reset_otp(request):
     """Handle email OTP generation and sending"""
@@ -281,9 +288,9 @@ def request_password_reset_otp(request):
                 return JsonResponse({"error": "Email is required."}, status=400)
 
             otp = generate_otp()
-            
+
             expiration_time = datetime.now() + timedelta(minutes=5)
-            
+
             otp_collection.update_one(
                 {"email": email},
                 {
@@ -304,6 +311,7 @@ def request_password_reset_otp(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def verify_password_reset_otp(request):
@@ -340,6 +348,7 @@ def verify_password_reset_otp(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+
 @csrf_exempt
 def reset_password(request):
     """Handle password reset"""
@@ -367,17 +376,18 @@ def reset_password(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+
 @csrf_exempt
 def create_post(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
-            required_fields = ["text","username"]
+
+            required_fields = ["text", "username"]
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({"error": f"{field} is required."}, status=400)
-                
+
             post_data = {
                 "text": data.get("text"),
                 "image": data.get("image"),
@@ -392,6 +402,7 @@ def create_post(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def get_posts(request):
@@ -408,11 +419,12 @@ def get_posts(request):
             # if post.get('username'):
             #     print(post.get('username'))
 
-            return JsonResponse({"posts": posts }, status=200)
+            return JsonResponse({"posts": posts}, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method. Use GET."}, status=405)
+
 
 @csrf_exempt
 def delete_post(request):
@@ -441,17 +453,19 @@ def delete_post(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
+
 @csrf_exempt
 def profile(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            username= data.get("username")
+            username = data.get("username")
 
             if not username:
                 return JsonResponse({"error": "username is required."}, status=400)
 
-            user = collectionsignup.find_one({"username": username}, {"password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+            user = collectionsignup.find_one({"username": username}, {
+                                             "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
 
             user['_id'] = str(user['_id'])
 
@@ -459,14 +473,14 @@ def profile(request):
                 return JsonResponse({"error": "User not found."}, status=404)
 
             posts = list(post_collection.find({"username": username}))
-        
+
             for post in posts:
                 post['_id'] = str(post['_id'])
 
             response_data = {
                 "user": user,
                 "post": posts,
-                
+
             }
 
             return JsonResponse(response_data, status=200)
@@ -475,6 +489,7 @@ def profile(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
+
 
 @csrf_exempt
 def friend_request(request):
@@ -486,7 +501,7 @@ def friend_request(request):
 
             if not username or not friend_username:
                 return JsonResponse({"error": "Username and friend's username are required."}, status=400)
-            
+
             user = collectionsignup.find_one({"username": username})
             friend = collectionsignup.find_one({"username": friend_username})
 
@@ -494,7 +509,7 @@ def friend_request(request):
                 return JsonResponse({"error": "User not found."}, status=404)
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
-            
+
             result = collectionsignup.update_one(
                 {"username": friend_username},
                 {"$addToSet": {"friend_request": username}},
@@ -503,14 +518,15 @@ def friend_request(request):
 
             if result.modified_count == 0:
                 return JsonResponse({"error": "User not found."}, status=404)
-            
+
             return JsonResponse({"message": "Friend request sent successfully"}, status=200)
-        
+
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
+
+
 @csrf_exempt
 def accept_friend_request(request):
     if request.method == 'POST':
@@ -521,7 +537,7 @@ def accept_friend_request(request):
 
             if not username or not friend_username:
                 return JsonResponse({"error": "Username and friend's username are required."}, status=400)
-            
+
             user = collectionsignup.find_one({"username": username})
             friend = collectionsignup.find_one({"username": friend_username})
 
@@ -529,24 +545,25 @@ def accept_friend_request(request):
                 return JsonResponse({"error": "User not found."}, status=404)
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
-            
-            
+
             result = collectionsignup.update_one(
-                {"username": friend_username},
-                {"$addToSet": {"friends": username}},
+                {"username": username},
+                {"$addToSet": {"friends": friend_username},
+                 "$pull": {"friend_request": friend_username}},
                 # {"$set": {"friend_request": ""}},
             )
 
             if result.modified_count == 0:
                 return JsonResponse({"error": "User not found."}, status=404)
-            
+
             return JsonResponse({"message": "Friend request accepted successfully"}, status=200)
-        
+
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
+
+
 @csrf_exempt
 def reject_friend_request(request):
     if request.method == 'POST':
@@ -557,7 +574,7 @@ def reject_friend_request(request):
 
             if not username or not friend_username:
                 return JsonResponse({"error": "Username and friend's username are required."}, status=400)
-            
+
             user = collectionsignup.find_one({"username": username})
             friend = collectionsignup.find_one({"username": friend_username})
 
@@ -565,8 +582,7 @@ def reject_friend_request(request):
                 return JsonResponse({"error": "User not found."}, status=404)
             if not friend:
                 return JsonResponse({"error": "Friend not found."}, status=404)
-            
-            
+
             result = collectionsignup.update_one(
                 {"username": username},
                 {"$pull": {"friend_request": friend_username}},
@@ -575,25 +591,27 @@ def reject_friend_request(request):
 
             if result.modified_count == 0:
                 return JsonResponse({"error": "User not found."}, status=404)
-            
+
             return JsonResponse({"message": "Friend request rejected successfully"}, status=200)
-        
+
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
-        
+
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
+
+
 @csrf_exempt
 def get_friends(request):
     if request.method == 'GET':
         try:
-            friends = list(collectionsignup.find({"friends": {"$ne": None}}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0}))
+            friends = list(collectionsignup.find({"friends": {"$ne": None}}, {
+                           "_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0}))
             return JsonResponse({"friends": friends}, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
-        
-        
+
+
 @csrf_exempt
 def search_user(request):
     if request.method == 'POST':
@@ -604,7 +622,8 @@ def search_user(request):
             if not username:
                 return JsonResponse({"error": "username is required."}, status=400)
 
-            user = collectionsignup.find_one({"username": username}, {"_id": 0, "email": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+            user = collectionsignup.find_one({"username": username}, {
+                                             "_id": 0, "email": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
 
             if not user:
                 return JsonResponse({"error": "User not found."}, status=404)
@@ -615,5 +634,3 @@ def search_user(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-
-

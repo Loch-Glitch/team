@@ -38,7 +38,7 @@ const App = () => {
         image: newPost.image ? newPost.image.split(',')[1] : '' // Remove Base64 prefix before sending to backend
       };
       await axios.post('http://127.0.0.1:8000/api/create-post/', postData);
-      alert('Post created successfully!');
+      alert('Post created successfully!');  
       setNewPost({ text: '', username: JSON.parse(localStorage.getItem('userInfo')).username, image: '' });
       setPreview(null);
       fetchPosts();

@@ -193,7 +193,7 @@ function HomePage({ isDarkMode }) {
       <p style={styles.message}>You have successfully logged in!</p>
       {/* <SearchButton /> Adding the SearchButton component */}
       <button onClick={() => navigate('/create_post')}>Create post</button>
-
+      <button onClick={() => navigate('/search')}>Search User</button>
       {/* Display posts */}
       <div>
         {posts.map((post) => (
@@ -210,7 +210,7 @@ function HomePage({ isDarkMode }) {
 
             <p style={styles.postAuthor}>Posted by: {post.username}</p>
             <p style={styles.postDate}>Date: {new Date(post.created_at).toLocaleString()}</p>
-            <button onClick={() => navigate('/create_post')}>Edit post</button>
+            {/* <button onClick={() => navigate('/create_post')}>Edit post</button> */}
           </div>
         ))}
       </div>

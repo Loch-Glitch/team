@@ -20,4 +20,5 @@ urlpatterns = [
     path("api/reject-friend-request/",views.reject_friend_request,name="reject_friend_request"),
     path("api/friend-request/",views.friend_request,name="send_friend_request"),
     path("api/search-user/",views.search_user,name="search_user"),
+    path('api/get-friends/', views.get_friends, name='get_friends')
 ]
