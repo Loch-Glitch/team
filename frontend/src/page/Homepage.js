@@ -199,7 +199,14 @@ function HomePage({ isDarkMode }) {
         {posts.map((post) => (
           <div key={post.id} style={styles.postContainer}>
             <p style={styles.postContent}>{post.text}</p>
-            <p style={styles.postContent}>{post.string}</p>
+            {post.image && (
+                    <img
+                      src={`data:image/jpeg;base64,${post.image}`}
+                      alt="Post"
+                      className="mt-2 rounded-lg w-full max-h-60 object-contain"
+                      style={{width: '100%'}}
+                    />
+                  )}
             <p style={styles.postAuthor}>Posted by: {post.username}</p>
             <p style={styles.postDate}>Date: {new Date(post.created_at).toLocaleString()}</p>
           </div>

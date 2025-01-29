@@ -65,44 +65,44 @@ def send_email_otp(to_email, otp):
         return False
 
 
-@csrf_exempt  
-def get_posts(request):
-    if request.method != 'GET':
-        return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
+# @csrf_exempt  
+# def get_posts(request):
+#     if request.method != 'GET':
+#         return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
 
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+#     if not request.user.is_authenticated:
+#         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
-    try:
-        my_user = get_user_model().objects.get(username=request.user.username)
-    except get_user_model().DoesNotExist:
-        return JsonResponse({'error': 'User does not exist'}, status=404)
+#     try:
+#         my_user = get_user_model().objects.get(username=request.user.username)
+#     except get_user_model().DoesNotExist:
+#         return JsonResponse({'error': 'User does not exist'}, status=404)
 
-    posts = list(post_collection.find().sort('created_at', -1))
+#     posts = list(post_collection.find().sort('created_at', -1))
 
-    page_number = request.GET.get('page', 1) 
-    paginator = Paginator(posts, 10) 
-    page_obj = paginator.get_page(page_number)
+#     page_number = request.GET.get('page', 1) 
+#     paginator = Paginator(posts, 10) 
+#     page_obj = paginator.get_page(page_number)
 
-    data = []
-    for post in page_obj:
-        new_post = {
-            'id': str(post['_id']),  
-            'content': post.get('content', ''),
-            'likes': post.get('likes', []), 
-            'created_at': post.get('created_at', ''),  
-            'liked': my_user.username in post.get('likes', [])  
-        }
-        data.append(new_post)
+#     data = []
+#     for post in page_obj:
+#         new_post = {
+#             'id': str(post['_id']),  
+#             'content': post.get('content', ''),
+#             'likes': post.get('likes', []), 
+#             'created_at': post.get('created_at', ''),  
+#             'liked': my_user.username in post.get('likes', [])  
+#         }
+#         data.append(new_post)
 
-    return JsonResponse({
-        'data': data,
-        'page': page_obj.number,
-        'has_next': page_obj.has_next(),
-        'has_previous': page_obj.has_previous(),
-        'total_pages': paginator.num_pages,
-        'total_items': paginator.count
-    })
+#     return JsonResponse({
+#         'data': data,
+#         'page': page_obj.number,
+#         'has_next': page_obj.has_next(),
+#         'has_previous': page_obj.has_previous(),
+#         'total_pages': paginator.num_pages,
+#         'total_items': paginator.count
+#     })
 
 @csrf_exempt
 def request_email_otp(request):

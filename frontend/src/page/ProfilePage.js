@@ -68,6 +68,8 @@ const ProfilePage = () => {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/accept-friend-request/', { username, friend_username: friendRequests });
             fetchProfile(); // Refresh profile data after accepting friend request
+            // await axios.post('http://127.0.0.1:8000/api/accept-friend-request/', { username, friend_username: friendRequests });
+            // navigate('/profile');
         } catch (error) {
             console.error(error);
         }
@@ -78,6 +80,8 @@ const ProfilePage = () => {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/reject-friend-request/', { username, friend_username: friendRequests });
             fetchProfile(); // Refresh profile data after rejecting friend request
+            // await axios.post('http://127.0.0.1:8000/api/reject-friend-request/', { username, friend_username: friendRequests });
+            // navigate('/profile');
         } catch (error) {
             console.error(error);
         }
@@ -96,10 +100,22 @@ const ProfilePage = () => {
                         <div key={index}>
                             <pre>{post.text}</pre>
                             <button onClick={() => handleDeletePost(post._id)}>Delete</button>
+                        {/* </div>
+                    ))}
+                    <h2>Friend Requests:</h2>
+                    {friends != friendRequests && ( */}
+                            {post.image && (
+                                <img
+                                    src={`data:image/jpeg;base64,${post.image}`}
+                                    alt="Post"
+                                    style={{ width: '200px', height: 'auto' }} // Adjust the size as needed
+                                    className="mt-2 rounded-lg w-full object-cover"
+                                />
+                            )}
                         </div>
                     ))}
                     <h2>Friend Requests:</h2>
-                    {friends != friendRequests && (
+                    {friends !== friendRequests &&
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
                                 <p className='' style={{ marginRight: '20px' }}>{friendRequests}</p>
@@ -107,15 +123,18 @@ const ProfilePage = () => {
                                 <button onClick={rejectFriendRequest}>Reject</button>
                             </div>
                         </div>
-                    )}
-                    <h2>Friends</h2>
+                    }
+                    {/* <h2>Friends</h2>
                     {friends && (
+                        </div>} */}
+                    <h2>Friends</h2>
+                    {friends &&
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'center', margin: '20px', backgroundColor: 'white', padding: '10px', border: '1px solid black', width: '50vw' }}>
                                 <p className='' style={{ marginRight: '20px' }}>{friendRequests}</p>
                             </div>
                         </div>
-                    )}
+                    }
                 </div>
             )}
         </div>
