@@ -34,25 +34,44 @@ const SearchButton = () => {
     };
 
     return (
-        <div>
-            <input
-                type="text"
-                value={friendUsername}
-                onChange={(e) => setFriendUsername(e.target.value)}
-                placeholder="Enter username"
-            />
-            <button onClick={handleSearch}>Search</button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {userData && (
-                <div>
-                    <h3>User Details:</h3>
-                    <div style={{display: 'flex', margin: '20px', backgroundColor: 'white', padding: '10px' }}>
-                        <p className='' style={{marginRight: '20px'}}>{userData.name}</p>
-                        <button onClick={sendFriendRequest}>Send Request</button>
-                    </div>
-                </div>
-            )}
-        </div>
+        <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
+  {/* Search Input */}
+  <div className="flex items-center space-x-2">
+    <input
+      type="text"
+      value={friendUsername}
+      onChange={(e) => setFriendUsername(e.target.value)}
+      placeholder="Enter username"
+      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <button 
+      onClick={handleSearch} 
+      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+    >
+      Search
+    </button>
+  </div>
+
+  {/* Error Message */}
+  {error && <p className="mt-2 text-red-500">{error}</p>}
+
+  {/* User Data */}
+  {userData && (
+    <div className="mt-4 bg-gray-100 p-4 rounded-md shadow">
+      <h3 className="text-lg font-semibold">User Details:</h3>
+      <div className="flex justify-between items-center mt-2 p-3 bg-white rounded-md shadow-sm">
+        <p className="text-gray-800 font-medium">{userData.name}</p>
+        <button 
+          onClick={sendFriendRequest} 
+          className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+        >
+          Send Request
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
     );
 };
 

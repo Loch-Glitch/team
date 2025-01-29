@@ -550,7 +550,11 @@ def accept_friend_request(request):
                 {"username": username},
                 {"$addToSet": {"friends": friend_username},
                  "$pull": {"friend_request": friend_username}},
-                # {"$set": {"friend_request": ""}},
+            )
+
+            collectionsignup.update_one(
+                { 'username': friend_username},
+                { '$addToSet': { 'friends': username } },
             )
 
             if result.modified_count == 0:

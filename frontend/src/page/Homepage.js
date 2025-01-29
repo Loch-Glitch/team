@@ -15,7 +15,7 @@ function HomePage({ isDarkMode }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [newPost, setNewPost] = useState({ text: '', username: '', image: '' });
 
-  
+
   // Fetch posts from the API
   const fetchPosts = async () => {
     try {
@@ -35,7 +35,7 @@ function HomePage({ isDarkMode }) {
   }, []);
 
 
- 
+
   // Handle logout
   const handleLogout = async () => {
     try {
@@ -163,64 +163,74 @@ function HomePage({ isDarkMode }) {
   };
 
   return (
-    <div style={styles.container}>
-      <div className='profile' style={styles.profile}>
-        <FaRegUserCircle style={styles.profile_icon} onClick={() => setDropdown(!dropdown)} />
-        {dropdown && (
-          <div className='dropdown' style={styles.dropdown}>
-            <ul style={styles.ul}>
-              <li
-                style={{ ...styles.li }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = styles.liHover.backgroundColor}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                onClick={() => navigate('/profile')}
-              >
-                <FaUser style={styles.icon} /> Profile
-              </li>
-              <li
-                style={{ ...styles.li }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = styles.liHover.backgroundColor}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                onClick={handleLogout}
-              >
-                <FaSignOutAlt style={styles.icon} /> Logout
-              </li>
-            </ul>
-          </div>
-        )}
+    <div className="max-w-4xl mx-auto p-6 bg-gray-100 min-h-screen">
+      {/* Profile Section */}
+      <div className="relative flex justify-between items-center bg-white shadow-md p-4 rounded-lg">
+        <div className="relative">
+          <FaRegUserCircle
+            className="text-3xl cursor-pointer text-gray-600 hover:text-gray-800"
+            onClick={() => setDropdown(!dropdown)}
+          />
+          {dropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
+              <ul className="py-2">
+                <li
+                  className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-200"
+                  onClick={() => navigate('/profile')}
+                >
+                  <FaUser className="text-gray-600" /> Profile
+                </li>
+                <li
+                  className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-200"
+                  onClick={handleLogout}
+                >
+                  <FaSignOutAlt className="text-gray-600" /> Logout
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+        <h1 className="text-2xl font-bold text-gray-800">SNS Media</h1>
       </div>
-      <h1 style={styles.header}>SNS Media</h1>
-      <p style={styles.message}>You have successfully logged in!</p>
-      {/* <SearchButton /> Adding the SearchButton component */}
-      <button onClick={() => navigate('/create_post')}>Create post</button>
-      <button onClick={() => navigate('/search')}>Search User</button>
-      {/* Display posts */}
-      <div>
-        {posts.map((post) => (
-          <div key={post.id} style={styles.postContainer}>
-            <p style={styles.postContent}>{post.text}</p>
-            {post.image && (
-                    <img
-                      src={`data:image/jpeg;base64,${post.image}`}
-                      alt="Post"
-                      className="mt-2 rounded-lg w-full max-h-60 object-contain"
-                      style={{width: '100%'}}
-                    />
-                  )}
 
-            <p style={styles.postAuthor}>Posted by: {post.username}</p>
-            <p style={styles.postDate}>Date: {new Date(post.created_at).toLocaleString()}</p>
-            {/* <button onClick={() => navigate('/create_post')}>Edit post</button> */}
+      {/* Success Message */}
+      <p className="mt-4 text-green-600 font-semibold text-center">You have successfully logged in!</p>
+
+      {/* Buttons */}
+      <div className="flex justify-center gap-4 mt-4">
+        <button onClick={() => navigate('/create_post')} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+          Create Post
+        </button>
+        <button onClick={() => navigate('/search')} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+          Search User
+        </button>
+      </div>
+
+      {/* Posts Section */}
+      <div className="mt-6 space-y-4">
+        {posts.map((post) => (
+          <div key={post.id} className="bg-white p-4 rounded-lg shadow-md border">
+            <p className="text-gray-700">{post.text}</p>
+            {post.image && (
+              <img
+                src={`data:image/jpeg;base64,${post.image}`}
+                alt="Post"
+                className="mt-2 rounded-lg w-full max-h-60 object-contain"
+              />
+            )}
+            <p className="text-sm text-gray-500 mt-2">Posted by: <span className="font-medium">{post.username}</span></p>
+            <p className="text-sm text-gray-400">Date: {new Date(post.created_at).toLocaleString()}</p>
           </div>
         ))}
       </div>
 
-      {/* Show loading indicator */}
-      {loading && <p style={styles.loading}>Loading...</p>}
+      {/* Loading Indicator */}
+      {loading && <p className="text-center text-gray-500 mt-4">Loading...</p>}
 
-      {/* Show error message */}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {/* Error Message */}
+      {errorMessage && <p className="text-center text-red-500 mt-4">{errorMessage}</p>}
     </div>
+
   );
 }
 
