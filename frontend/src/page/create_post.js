@@ -43,19 +43,6 @@ const App = () => {
     }
   };
 
-  // Delete a post by ID
-  const deletePost = async (id) => {
-    try {
-      setLoading(true);
-      await axios.post('/api/delete-post/', { id });
-      alert('Post deleted successfully!');
-      fetchPosts();
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
@@ -105,12 +92,8 @@ const App = () => {
                       className="mt-2 rounded-lg w-full object-cover"
                     />
                   )}
-                  <button
-                    onClick={() => deletePost(post._id)}
-                    className="mt-2 text-red-500 hover:underline"
-                  >
-                    Delete Post
-                  </button>
+                
+        
                 </li>
               ))}
             </ul>

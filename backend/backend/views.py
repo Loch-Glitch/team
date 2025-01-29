@@ -8,8 +8,10 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password, check_password
 from bson.objectid import ObjectId
+from django.core.paginator import Paginator
 
 
 MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
@@ -61,6 +63,46 @@ def send_email_otp(to_email, otp):
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         return False
+
+
+@csrf_exempt  
+def get_posts(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+    try:
+        my_user = get_user_model().objects.get(username=request.user.username)
+    except get_user_model().DoesNotExist:
+        return JsonResponse({'error': 'User does not exist'}, status=404)
+
+    posts = list(post_collection.find().sort('created_at', -1))
+
+    page_number = request.GET.get('page', 1) 
+    paginator = Paginator(posts, 10) 
+    page_obj = paginator.get_page(page_number)
+
+    data = []
+    for post in page_obj:
+        new_post = {
+            'id': str(post['_id']),  
+            'content': post.get('content', ''),
+            'likes': post.get('likes', []), 
+            'created_at': post.get('created_at', ''),  
+            'liked': my_user.username in post.get('likes', [])  
+        }
+        data.append(new_post)
+
+    return JsonResponse({
+        'data': data,
+        'page': page_obj.number,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'total_pages': paginator.num_pages,
+        'total_items': paginator.count
+    })
 
 @csrf_exempt
 def request_email_otp(request):
@@ -356,26 +398,31 @@ def get_posts(request):
     if request.method == 'GET':
 
         try:
-            post = list(post_collection.find())
+            posts = list(post_collection.find())
+
+            for post in posts:
+                post['_id'] = str(post['_id'])
 
             # print(post)
 
-            if post.get('username'):
-                print(post.get('username'))
+            # if post.get('username'):
+            #     print(post.get('username'))
 
-            return JsonResponse({"posts": 'hello' }, status=200)
+            return JsonResponse({"posts": posts }, status=200)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method. Use GET."}, status=405)
-    
 
 @csrf_exempt
 def delete_post(request):
     if request.method == 'POST':
         try:
+            print("Raw request body:", request.body)  # Debug log
             data = json.loads(request.body)
+            print("Parsed data:", data)  # Debug log
             post_id = data.get("id")
+            print("Extracted post_id:", post_id)  # Debug log
 
             if not post_id:
                 return JsonResponse({"error": "Post ID is required."}, status=400)
@@ -387,11 +434,12 @@ def delete_post(request):
 
             return JsonResponse({"message": "Post deleted successfully"}, status=200)
 
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data."}, status=400)
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
-
 
 @csrf_exempt
 def profile(request):
@@ -403,16 +451,22 @@ def profile(request):
             if not username:
                 return JsonResponse({"error": "username is required."}, status=400)
 
-            user = collectionsignup.find_one({"username": username}, {"_id": 0, "password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+            user = collectionsignup.find_one({"username": username}, {"password": 0, "failed_attempts": 0, "is_locked": 0, "lock_time": 0})
+
+            user['_id'] = str(user['_id'])
 
             if not user:
                 return JsonResponse({"error": "User not found."}, status=404)
 
-            post = list(post_collection.find({"username": username}, {"_id": 0}))
+            posts = list(post_collection.find({"username": username}))
+        
+            for post in posts:
+                post['_id'] = str(post['_id'])
 
             response_data = {
                 "user": user,
-                "post": post
+                "post": posts,
+                
             }
 
             return JsonResponse(response_data, status=200)
