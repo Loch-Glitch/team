@@ -191,7 +191,7 @@ function HomePage({ isDarkMode }) {
       </div>
       <h1 style={styles.header}>SNS Media</h1>
       <p style={styles.message}>You have successfully logged in!</p>
-      <SearchButton /> {/* Adding the SearchButton component */}
+      {/* <SearchButton /> Adding the SearchButton component */}
       <button onClick={() => navigate('/create_post')}>Create post</button>
 
       {/* Display posts */}
@@ -207,8 +207,10 @@ function HomePage({ isDarkMode }) {
                       style={{width: '100%'}}
                     />
                   )}
+
             <p style={styles.postAuthor}>Posted by: {post.username}</p>
             <p style={styles.postDate}>Date: {new Date(post.created_at).toLocaleString()}</p>
+            <button onClick={() => navigate('/create_post')}>Edit post</button>
           </div>
         ))}
       </div>
