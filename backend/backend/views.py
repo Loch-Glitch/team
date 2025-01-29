@@ -12,7 +12,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from bson.objectid import ObjectId
 
 
-MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
+MONGO_URI = ""
 try:
     client = pymongo.MongoClient(MONGO_URI)
     db = client['Project']
