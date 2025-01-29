@@ -14,7 +14,7 @@ from bson.objectid import ObjectId
 from django.core.paginator import Paginator
 
 
-MONGO_URI = "mongodb+srv://lochana:lochana@cluster0.38afr.mongodb.net/"
+MONGO_URI = ""
 try:
     client = pymongo.MongoClient(MONGO_URI)
     db = client['Project']
